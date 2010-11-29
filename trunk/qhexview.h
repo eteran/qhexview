@@ -175,7 +175,6 @@ private:
 	bool show_line2_;
 	bool show_line3_;
 	bool show_address_separator_;	// should we show ':' character in address to seperate high/low portions
-	char address_format_string_[32];
 
 	QSharedPointer<CommentServerInterface>	comment_server_;
 };
