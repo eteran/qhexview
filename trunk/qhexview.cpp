@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QSignalMapper>
 #include <QTextStream>
 #include <QtGlobal>
+#include <QDebug>
 
 #include <cctype>
 #include <climits>
