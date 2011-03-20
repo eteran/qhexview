@@ -288,7 +288,7 @@ void QHexView::mnuCopy() {
 					ss << "|";
 				}
 
-				if(show_comments_) {
+				if(show_comments_ && comment_server_) {
 					drawCommentsToBuffer(ss, offset, data_size);
 				}
 
