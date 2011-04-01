@@ -1185,11 +1185,11 @@ QByteArray QHexView::allBytes() const {
 //------------------------------------------------------------------------------
 QByteArray QHexView::selectedBytes() const {
 	if(hasSelectedText()) {
-		int s = qMin(selection_start_, selection_end_);
-		int e = qMax(selection_start_, selection_end_);
+		const int s = qMin(selection_start_, selection_end_);
+		const int e = qMax(selection_start_, selection_end_);
 
 		data_->seek(s);
-		return data_->read(e - s + 1);
+		return data_->read(e - s);
 	}
 
 	return QByteArray();
@@ -1199,8 +1199,8 @@ QByteArray QHexView::selectedBytes() const {
 // Name: selectedBytesAddress() const
 //------------------------------------------------------------------------------
 QHexView::address_t QHexView::selectedBytesAddress() const {
-	const address_t selectBase = qMin(selection_start_, selection_end_);
-	return selectBase + address_offset_;
+	const address_t select_base = qMin(selection_start_, selection_end_);
+	return select_base + address_offset_;
 }
 
 //------------------------------------------------------------------------------
