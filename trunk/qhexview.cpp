@@ -274,24 +274,26 @@ void QHexView::mnuCopy() {
 				data_->seek(offset);
 				const QByteArray row_data = data_->read(chars_per_row);
 
-				if(show_address_) {
-					const address_t addressRVA = address_offset_ + offset;
-					const QString addressBuffer = formatAddress(addressRVA);
-					ss << addressBuffer << '|';
-				}
+				if(!row_data.isEmpty()) {
+					if(show_address_) {
+						const address_t addressRVA = address_offset_ + offset;
+						const QString addressBuffer = formatAddress(addressRVA);
+						ss << addressBuffer << '|';
+					}
 
-				if(show_hex_) {
-					drawHexDumpToBuffer(ss, offset, data_size, row_data);
-					ss << "|";
-				}
+					if(show_hex_) {
+						drawHexDumpToBuffer(ss, offset, data_size, row_data);
+						ss << "|";
+					}
 
-				if(show_ascii_) {
-					drawAsciiDumpToBuffer(ss, offset, data_size, row_data);
-					ss << "|";
-				}
+					if(show_ascii_) {
+						drawAsciiDumpToBuffer(ss, offset, data_size, row_data);
+						ss << "|";
+					}
 
-				if(show_comments_ && comment_server_) {
-					drawCommentsToBuffer(ss, offset, data_size);
+					if(show_comments_ && comment_server_) {
+						drawCommentsToBuffer(ss, offset, data_size);
+					}
 				}
 
 				ss << "\n";
@@ -1115,23 +1117,25 @@ void QHexView::paintEvent(QPaintEvent *) {
 		data_->seek(offset);
 		const QByteArray row_data = data_->read(chars_per_row);
 
-		if(show_address_) {
-			const address_t addressRVA = address_offset_ + offset;
-			const QString addressBuffer = formatAddress(addressRVA);
-			painter.setPen(QPen(address_color_));
-			painter.drawText(0, row, addressBuffer.length() * font_width_, font_height_, Qt::AlignTop, addressBuffer);
-		}
-		
-		if(show_hex_) {
-			drawHexDump(painter, offset, row, data_size, word_count, row_data);
-		}
+		if(!row_data.isEmpty()) {
+			if(show_address_) {
+				const address_t addressRVA = address_offset_ + offset;
+				const QString addressBuffer = formatAddress(addressRVA);
+				painter.setPen(QPen(address_color_));
+				painter.drawText(0, row, addressBuffer.length() * font_width_, font_height_, Qt::AlignTop, addressBuffer);
+			}
 
-		if(show_ascii_) {
-			drawAsciiDump(painter, offset, row, data_size, row_data);
-		}
+			if(show_hex_) {
+				drawHexDump(painter, offset, row, data_size, word_count, row_data);
+			}
 
-		if(show_comments_ && comment_server_) {
-			drawComments(painter, offset, row, data_size);
+			if(show_ascii_) {
+				drawAsciiDump(painter, offset, row, data_size, row_data);
+			}
+
+			if(show_comments_ && comment_server_) {
+				drawComments(painter, offset, row, data_size);
+			}
 		}
 
 		offset += chars_per_row;
