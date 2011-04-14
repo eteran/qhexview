@@ -4,7 +4,7 @@ Copyright (C) 2006 - 2011 Evan Teran
 
 Copyright (C) 2010        Hugues Bruant
                           hugues.bruant@gmail.com
-				   
+
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 2 of the License, or
@@ -98,7 +98,7 @@ QHexView::QHexView(QWidget *parent) : QAbstractScrollArea(parent),
 
 	// default to a simple monospace font
 	setFont(QFont("Monospace", 8));
-	
+
 	setShowAddressSeparator(true);
 }
 
@@ -270,7 +270,7 @@ void QHexView::mnuCopy() {
 		while(offset < end) {
 
 			if((offset + chars_per_row) > start) {
-			
+
 				data_->seek(offset);
 				const QByteArray row_data = data_->read(chars_per_row);
 
@@ -785,7 +785,7 @@ void QHexView::setData(const QSharedPointer<QIODevice>& d) {
 	} else {
 		data_ = d;
 	}
-	
+
 	deselect();
 	updateScrollbars();
 	repaint();
@@ -897,7 +897,7 @@ QString QHexView::format_bytes(const QByteArray &row_data, int index) const {
 	} value = { 0 };
 
 	char byte_buffer[32];
-	
+
 	switch(word_width_) {
 	case 1:
 		value.b |= (row_data[index + 0] & 0xff);
@@ -925,7 +925,7 @@ QString QHexView::format_bytes(const QByteArray &row_data, int index) const {
 		value.q |= static_cast<quint64>(row_data[index + 4] & 0xff) << 32;
 		value.q |= static_cast<quint64>(row_data[index + 5] & 0xff) << 40;
 		value.q |= static_cast<quint64>(row_data[index + 6] & 0xff) << 48;
-		value.q |= static_cast<quint64>(row_data[index + 7] & 0xff) << 56;		
+		value.q |= static_cast<quint64>(row_data[index + 7] & 0xff) << 56;
 		qsnprintf(byte_buffer, sizeof(byte_buffer), "%016llx", value.q);
 		break;
 	}
@@ -983,7 +983,7 @@ void QHexView::drawHexDump(QPainter &painter, unsigned int offset, unsigned int 
 		// about to render, not the start, it's allowed to end at the very last
 		// byte
 		if(index + word_width_ <= size) {
-					
+
 			const QString byteBuffer = format_bytes(row_data, i * word_width_);
 
 			const int drawLeft = hex_dump_left + (i * (charsPerWord() + 1) * font_width_);
