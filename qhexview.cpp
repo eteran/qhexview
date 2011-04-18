@@ -78,8 +78,8 @@ namespace {
 
 	template <class T>
 	QString format_address(T address, bool show_separator) {
-		if(show_separator)	return address_format<T, sizeof(T)>::format_address(address, show_separator_tag());
-		else				return address_format<T, sizeof(T)>::format_address(address);
+		if(show_separator) return address_format<T, sizeof(T)>::format_address(address, show_separator_tag());
+		else               return address_format<T, sizeof(T)>::format_address(address);
 	}
 }
 
@@ -150,8 +150,8 @@ void QHexView::setFont(const QFont &f) {
 
 	// recalculate all of our metrics/offsets
 	const QFontMetrics fm(f);
-	font_width_		= fm.width('X');
-	font_height_	= fm.height();
+	font_width_  = fm.width('X');
+	font_height_ = fm.height();
 
 
 	updateScrollbars();
@@ -262,9 +262,9 @@ void QHexView::mnuCopy() {
 			}
 		}
 
-		const unsigned int end		= qMax(selection_start_, selection_end_);
-		const unsigned int start	= qMin(selection_start_, selection_end_);
-		const int data_size			= dataSize();
+		const unsigned int end   = qMax(selection_start_, selection_end_);
+		const unsigned int start = qMin(selection_start_, selection_end_);
+		const int data_size      = dataSize();
 
 		// offset now refers to the first visible byte
 		while(offset < end) {
@@ -340,10 +340,10 @@ bool QHexView::hasSelectedText() const {
 //------------------------------------------------------------------------------
 bool QHexView::isInViewableArea(int index) const {
 
-	const int firstViewableWord	= verticalScrollBar()->value() * row_width_;
-	const int viewableLines		= viewport()->height() / font_height_;
-	const int viewableWords		= viewableLines * row_width_;
-	const int lastViewableWord	= firstViewableWord + viewableWords;
+	const int firstViewableWord = verticalScrollBar()->value() * row_width_;
+	const int viewableLines     = viewport()->height() / font_height_;
+	const int viewableWords     = viewableLines * row_width_;
+	const int lastViewableWord  = firstViewableWord + viewableWords;
 
 	return index >= firstViewableWord && index < lastViewableWord;
 }
@@ -832,8 +832,8 @@ void QHexView::drawComments(QPainter &painter, unsigned int offset, unsigned int
 
 	painter.setPen(QPen(palette().text().color()));
 
-	const address_t address	= address_offset_ + offset;
-	const QString comment = comment_server_->comment(address, word_width_);
+	const address_t address = address_offset_ + offset;
+	const QString comment   = comment_server_->comment(address, word_width_);
 
 	painter.drawText(
 		commentLeft(),
@@ -876,8 +876,8 @@ void QHexView::drawAsciiDumpToBuffer(QTextStream &stream, unsigned int offset, i
 //------------------------------------------------------------------------------
 void QHexView::drawCommentsToBuffer(QTextStream &stream, unsigned int offset, int size) const {
 	Q_UNUSED(size);
-	const address_t address	= address_offset_ + offset;
-	const QString comment = comment_server_->comment(address, word_width_);
+	const address_t address = address_offset_ + offset;
+	const QString comment   = comment_server_->comment(address, word_width_);
 	stream << comment;
 }
 
@@ -893,7 +893,7 @@ QString QHexView::format_bytes(const QByteArray &row_data, int index) const {
 		quint64 q;
 		quint32 d;
 		quint16 w;
-		quint8	b;
+		quint8  b;
 	} value = { 0 };
 
 	char byte_buffer[32];
@@ -1109,8 +1109,8 @@ void QHexView::paintEvent(QPaintEvent *) {
 		}
 	}
 
-	const unsigned int data_size		= static_cast<unsigned int>(dataSize());
-	const unsigned int widget_height	= static_cast<unsigned int>(height());
+	const unsigned int data_size     = static_cast<unsigned int>(dataSize());
+	const unsigned int widget_height = static_cast<unsigned int>(height());
 
 	while(row + font_height_ < widget_height && offset < data_size) {
 
@@ -1164,16 +1164,16 @@ void QHexView::paintEvent(QPaintEvent *) {
 // Name: selectAll()
 //------------------------------------------------------------------------------
 void QHexView::selectAll() {
-	selection_start_	= 0;
-	selection_end_		= dataSize();
+	selection_start_ = 0;
+	selection_end_   = dataSize();
 }
 
 //------------------------------------------------------------------------------
 // Name: deselect()
 //------------------------------------------------------------------------------
 void QHexView::deselect() {
-	selection_start_	= -1;
-	selection_end_		= -1;
+	selection_start_ = -1;
+	selection_end_   = -1;
 }
 
 //------------------------------------------------------------------------------
