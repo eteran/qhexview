@@ -87,12 +87,12 @@ public:
 	int rowWidth() const;
 
 private:
-	int row_width_;			// amount of 'words' per row
-	int word_width_;		// size of a 'word' in bytes
-	QColor address_color_;	// colour of the address in display
-	bool show_hex_;			// should we show the hex display?
-	bool show_ascii_;		// should we show the ascii display?
-	bool show_address_;		// should we show the address display?
+	int row_width_;        // amount of 'words' per row
+	int word_width_;       // size of a 'word' in bytes
+	QColor address_color_; // colour of the address in display
+	bool show_hex_;        // should we show the hex display?
+	bool show_ascii_;      // should we show the ascii display?
+	bool show_address_;    // should we show the address display?
 	bool show_comments_;
 
 public:
@@ -155,11 +155,11 @@ private:
 
 private:
 	address_t origin_;
-	address_t address_offset_;	// this is the offset that our base address is relative to
-	int selection_start_;		// index of first selected word (or -1)
-	int selection_end_;			// index of last selected word (or -1)
-	int font_width_;			// width of a character in this font
-	int font_height_;			// height of a character in this font
+	address_t address_offset_; // this is the offset that our base address is relative to
+	int selection_start_;      // index of first selected word (or -1)
+	int selection_end_;        // index of last selected word (or -1)
+	int font_width_;           // width of a character in this font
+	int font_height_;          // height of a character in this font
 	QSharedPointer<QIODevice> data_;
 
 	enum {
@@ -175,9 +175,9 @@ private:
 	bool show_line1_;
 	bool show_line2_;
 	bool show_line3_;
-	bool show_address_separator_;	// should we show ':' character in address to seperate high/low portions
+	bool show_address_separator_; // should we show ':' character in address to seperate high/low portions
 
-	QSharedPointer<CommentServerInterface>	comment_server_;
+	QSharedPointer<CommentServerInterface> comment_server_;
 };
 
 #endif
