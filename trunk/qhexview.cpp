@@ -41,7 +41,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <memory>
 
 namespace {
-	struct show_separator_tag{};
+	struct show_separator_tag {};
 
 	template <class T, size_t N>
 	struct address_format {};
@@ -80,6 +80,20 @@ namespace {
 	QString format_address(T address, bool show_separator) {
 		if(show_separator) return address_format<T, sizeof(T)>::format_address(address, show_separator_tag());
 		else               return address_format<T, sizeof(T)>::format_address(address);
+	}
+	
+	//------------------------------------------------------------------------------
+	// Name: is_printable(unsigned char ch)
+	// Desc: determines if a character has a printable ascii symbol
+	//------------------------------------------------------------------------------
+	bool is_printable(unsigned char ch) {
+
+		// if it's standard ascii use isprint/isspace, otherwise go with our observations
+		if(ch < 0x80) {
+			return std::isprint(ch) || std::isspace(ch);
+		} else {
+			return (ch & 0xff) >= 0xa0;
+		}
 	}
 }
 
@@ -276,8 +290,8 @@ void QHexView::mnuCopy() {
 
 				if(!row_data.isEmpty()) {
 					if(show_address_) {
-						const address_t addressRVA = address_offset_ + offset;
-						const QString addressBuffer = formatAddress(addressRVA);
+						const address_t address_rva = address_offset_ + offset;
+						const QString addressBuffer = formatAddress(address_rva);
 						ss << addressBuffer << '|';
 					}
 
@@ -406,20 +420,6 @@ void QHexView::keyPressEvent(QKeyEvent *event) {
 	}
 
 	QAbstractScrollArea::keyPressEvent(event);
-}
-
-//------------------------------------------------------------------------------
-// Name: isPrintable(unsigned char ch)
-// Desc: determines if a character has a printable ascii symbol
-//------------------------------------------------------------------------------
-bool QHexView::isPrintable(unsigned char ch) {
-
-	// if it's standard ascii use isprint/isspace, otherwise go with our observations
-	if(ch < 0x80) {
-		return std::isprint(ch) || std::isspace(ch);
-	} else {
-		return (ch & 0xff) >= 0xa0;
-	}
 }
 
 //------------------------------------------------------------------------------
@@ -644,24 +644,24 @@ int QHexView::pixelToWord(int x, int y) const {
 	}
 
 	// starting offset in bytes
-	unsigned int startOffset = verticalScrollBar()->value() * bytesPerRow();
+	unsigned int start_offset = verticalScrollBar()->value() * bytesPerRow();
 
 	// take into account the origin
 	if(origin_ != 0) {
-		if(startOffset > 0) {
-			startOffset += origin_;
-			startOffset -= bytesPerRow();
+		if(start_offset > 0) {
+			start_offset += origin_;
+			start_offset -= bytesPerRow();
 		}
 	}
 
 	// convert byte offset to word offset, rounding up
-	startOffset /= word_width_;
+	start_offset /= word_width_;
 
 	if((origin_ % word_width_) != 0) {
-		startOffset += 1;
+		start_offset += 1;
 	}
 
-	word = ((y * row_width_) + x) + startOffset;
+	word = ((y * row_width_) + x) + start_offset;
 
 	return word;
 }
@@ -671,21 +671,21 @@ int QHexView::pixelToWord(int x, int y) const {
 //------------------------------------------------------------------------------
 void QHexView::mouseDoubleClickEvent(QMouseEvent *event) {
 	if(event->button() == Qt::LeftButton) {
-		const int x = event->x();
+		const int x = event->x() + horizontalScrollBar()->value() * font_width_;
 		const int y = event->y();
 		if(x >= line1() && x < line2()) {
 
 			highlighting_ = Highlighting_Data;
 
 			const int offset = pixelToWord(x, y);
-			int byteOffset = offset * word_width_;
+			int byte_offset = offset * word_width_;
 			if(origin_) {
 				if(origin_ % word_width_) {
-					byteOffset -= word_width_ - (origin_ % word_width_);
+					byte_offset -= word_width_ - (origin_ % word_width_);
 				}
 			}
 
-			selection_start_ = byteOffset;
+			selection_start_ = byte_offset;
 			selection_end_ = selection_start_ + word_width_;
 			repaint();
 		}
@@ -697,7 +697,7 @@ void QHexView::mouseDoubleClickEvent(QMouseEvent *event) {
 //------------------------------------------------------------------------------
 void QHexView::mousePressEvent(QMouseEvent *event) {
 	if(event->button() == Qt::LeftButton) {
-		const int x = event->x();
+		const int x = event->x() + horizontalScrollBar()->value() * font_width_;
 		const int y = event->y();
 
 		if(x < line2()) {
@@ -707,15 +707,15 @@ void QHexView::mousePressEvent(QMouseEvent *event) {
 		}
 
 		const int offset = pixelToWord(x, y);
-		int byteOffset = offset * word_width_;
+		int byte_offset = offset * word_width_;
 		if(origin_) {
 			if(origin_ % word_width_) {
-				byteOffset -= word_width_ - (origin_ % word_width_);
+				byte_offset -= word_width_ - (origin_ % word_width_);
 			}
 		}
 
 		if(offset < dataSize()) {
-			selection_start_ = selection_end_ = byteOffset;
+			selection_start_ = selection_end_ = byte_offset;
 		} else {
 			selection_start_ = selection_end_ = -1;
 		}
@@ -728,27 +728,25 @@ void QHexView::mousePressEvent(QMouseEvent *event) {
 //------------------------------------------------------------------------------
 void QHexView::mouseMoveEvent(QMouseEvent *event) {
 	if(highlighting_ != Highlighting_None) {
-		const int x = event->x();
+		const int x = event->x() + horizontalScrollBar()->value() * font_width_;
 		const int y = event->y();
 
 		const int offset = pixelToWord(x, y);
 
 		if(selection_start_ != -1) {
 			if(offset == -1) {
-
-
 				selection_end_ = (row_width_ - selection_start_) + selection_start_;
 			} else {
 
-				int byteOffset = (offset * word_width_);
+				int byte_offset = (offset * word_width_);
 
 				if(origin_) {
 					if(origin_ % word_width_) {
-						byteOffset -= word_width_ - (origin_ % word_width_);
+						byte_offset -= word_width_ - (origin_ % word_width_);
 					}
 
 				}
-				selection_end_ = byteOffset;
+				selection_end_ = byte_offset;
 			}
 
 			if(selection_end_ < 0) {
@@ -859,7 +857,7 @@ void QHexView::drawAsciiDumpToBuffer(QTextStream &stream, unsigned int offset, i
 
 			if(isSelected(index)) {
 				const unsigned char ch = row_data[i];
-				const bool printable = isPrintable(ch) && ch != '\f' && ch != '\t' && ch != '\r' && ch != '\n' && ch < 0x80;
+				const bool printable = is_printable(ch) && ch != '\f' && ch != '\t' && ch != '\r' && ch != '\n' && ch < 0x80;
 				const char byteBuffer(printable ? ch : unprintable_char_);
 				stream << byteBuffer;
 			} else {
@@ -1046,7 +1044,7 @@ void QHexView::drawAsciiDump(QPainter &painter, unsigned int offset, unsigned in
 		if(index < size) {
 			const char ch        = row_data[i];
 			const int drawLeft   = ascii_dump_left + i * font_width_;
-			const bool printable = isPrintable(ch);
+			const bool printable = is_printable(ch);
 
 			// drawing a selected character
 			if(isSelected(index)) {
@@ -1119,8 +1117,8 @@ void QHexView::paintEvent(QPaintEvent *) {
 
 		if(!row_data.isEmpty()) {
 			if(show_address_) {
-				const address_t addressRVA = address_offset_ + offset;
-				const QString addressBuffer = formatAddress(addressRVA);
+				const address_t address_rva = address_offset_ + offset;
+				const QString addressBuffer = formatAddress(address_rva);
 				painter.setPen(QPen(address_color_));
 				painter.drawText(0, row, addressBuffer.length() * font_width_, font_height_, Qt::AlignTop, addressBuffer);
 			}
