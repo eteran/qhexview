@@ -149,8 +149,6 @@ private:
 	QString format_bytes(const QByteArray &row_data, int index) const;
 
 private:
-
-	static bool isPrintable(unsigned char ch);
 	static QAction *addToggleActionToMenu(QMenu *menu, const QString &caption, bool checked, QObject *reciever, const char *slot);
 
 private:
