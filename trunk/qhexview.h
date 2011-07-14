@@ -89,7 +89,7 @@ public:
 private:
 	int row_width_;        // amount of 'words' per row
 	int word_width_;       // size of a 'word' in bytes
-	QColor address_color_; // colour of the address in display
+	QColor address_color_; // color of the address in display
 	bool show_hex_;        // should we show the hex display?
 	bool show_ascii_;      // should we show the ascii display?
 	bool show_address_;    // should we show the address display?
@@ -149,9 +149,6 @@ private:
 	QString format_bytes(const QByteArray &row_data, int index) const;
 
 private:
-	static QAction *addToggleActionToMenu(QMenu *menu, const QString &caption, bool checked, QObject *reciever, const char *slot);
-
-private:
 	address_t origin_;
 	address_t address_offset_; // this is the offset that our base address is relative to
 	int selection_start_;      // index of first selected word (or -1)
@@ -173,7 +170,7 @@ private:
 	bool show_line1_;
 	bool show_line2_;
 	bool show_line3_;
-	bool show_address_separator_; // should we show ':' character in address to seperate high/low portions
+	bool show_address_separator_; // should we show ':' character in address to separate high/low portions
 
 	QSharedPointer<CommentServerInterface> comment_server_;
 };
