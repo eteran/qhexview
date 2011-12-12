@@ -509,11 +509,8 @@ unsigned int QHexView::addressLen() const {
 void QHexView::updateScrollbars() {
 	const int sz = dataSize();
 	const int bpr = bytesPerRow();
-	verticalScrollBar()
-		->setMaximum(qMax(0, sz / bpr + (sz % bpr ? 1 : 0)
-							 - viewport()->height() / font_height_));
-	horizontalScrollBar()
-		->setMaximum(qMax(0, (line3() - viewport()->width()) / font_width_));
+	verticalScrollBar()->setMaximum(qMax(0, sz / bpr + ((sz % bpr) ? 1 : 0) - viewport()->height() / font_height_));
+	horizontalScrollBar()->setMaximum(qMax(0, (line3() - viewport()->width()) / font_width_));
 }
 
 //------------------------------------------------------------------------------
@@ -1228,16 +1225,16 @@ QHexView::address_t QHexView::addressOffset() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: setCommentServer(const QSharedPointer<CommentServerInterface> &p)
+// Name: setCommentServer(const CommentServerInterface::pointer &p)
 //------------------------------------------------------------------------------
-void QHexView::setCommentServer(const QSharedPointer<CommentServerInterface> &p) {
+void QHexView::setCommentServer(const CommentServerInterface::pointer &p) {
 	comment_server_ = p;
 }
 
 //------------------------------------------------------------------------------
 // Name: commentServer() const
 //------------------------------------------------------------------------------
-QSharedPointer<QHexView::CommentServerInterface> QHexView::commentServer() const {
+QHexView::CommentServerInterface::pointer QHexView::commentServer() const {
 	return comment_server_;
 }
 

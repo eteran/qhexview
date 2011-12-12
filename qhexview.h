@@ -39,6 +39,8 @@ public:
 
 	class CommentServerInterface {
 	public:
+		typedef QSharedPointer<CommentServerInterface> pointer;
+	public:
 		virtual ~CommentServerInterface() {}
 	public:
 		virtual void set_comment(address_t address, const QString &comment) = 0;
@@ -50,8 +52,8 @@ public:
 	QHexView(QWidget *parent = 0);
 	virtual ~QHexView();
 
-	QSharedPointer<CommentServerInterface> commentServer() const;
-	void setCommentServer(const QSharedPointer<CommentServerInterface> &p);
+	CommentServerInterface::pointer commentServer() const;
+	void setCommentServer(const CommentServerInterface::pointer &p);
 
 protected:
 	virtual void paintEvent(QPaintEvent *event);
@@ -172,7 +174,7 @@ private:
 	bool show_line3_;
 	bool show_address_separator_; // should we show ':' character in address to separate high/low portions
 
-	QSharedPointer<CommentServerInterface> comment_server_;
+	CommentServerInterface::pointer comment_server_;
 };
 
 #endif
