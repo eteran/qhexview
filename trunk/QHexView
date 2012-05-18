@@ -1,22 +1,16 @@
 /*
-Copyright (C) 2006 - 2011 Evan Teran
+Copyright (C) 2006 - 2012 Evan Teran
                           eteran@alum.rit.edu
 
 Copyright (C) 2010        Hugues Bruant
                           hugues.bruant@gmail.com
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 2 of the License, or
-(at your option) any later version.
+This file can be used under one of two licenses.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+1. The GNU Public License, version 2.0, in LICENSE-gpl2.txt
+2. A BSD-Style License, in LICENSE-bsd2.txt.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+The license chosen is at the discretion of the user of this software. 
 */
 
 #include "qhexview.h"
