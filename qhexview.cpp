@@ -159,7 +159,7 @@ void QHexView::repaint() {
 // Name: dataSize() const
 // Desc: returns how much data we are viewing
 //------------------------------------------------------------------------------
-int QHexView::dataSize() const {
+qint64 QHexView::dataSize() const {
 	return data_ ? data_->size() : 0;
 }
 
@@ -501,9 +501,12 @@ unsigned int QHexView::addressLen() const {
 // Desc: recalculates scrollbar maximum value base on lines total and lines viewable
 //------------------------------------------------------------------------------
 void QHexView::updateScrollbars() {
-	const int sz = dataSize();
-	const int bpr = bytesPerRow();
-	verticalScrollBar()->setMaximum(qMax(0, sz / bpr + ((sz % bpr) ? 1 : 0) - viewport()->height() / font_height_));
+        const qint64 sz = dataSize();
+        const int bpr = bytesPerRow();
+
+        qint64 maxval = sz / bpr + ((sz % bpr) ? 1 : 0) - viewport()->height() / font_height_;
+
+        verticalScrollBar()->setMaximum(qMax((qint64)0, maxval));
 	horizontalScrollBar()->setMaximum(qMax(0, (line3() - viewport()->width()) / font_width_));
 }
 
@@ -511,7 +514,7 @@ void QHexView::updateScrollbars() {
 // Name: scrollTo(unsigned int offset)
 // Desc: scrolls view to given byte offset
 //------------------------------------------------------------------------------
-void QHexView::scrollTo(unsigned int offset) {
+void QHexView::scrollTo(quint64 offset) {
 
 	const int bpr = bytesPerRow();
 	origin_ = offset % bpr;
@@ -815,7 +818,7 @@ bool QHexView::isSelected(int index) const {
 //------------------------------------------------------------------------------
 // Name: drawComments(QPainter &painter, unsigned int offset, unsigned int row, int size) const
 //------------------------------------------------------------------------------
-void QHexView::drawComments(QPainter &painter, unsigned int offset, unsigned int row, int size) const {
+void QHexView::drawComments(QPainter &painter, quint64 offset, unsigned int row, quint64 size) const {
 
 	Q_UNUSED(size);
 
@@ -837,12 +840,12 @@ void QHexView::drawComments(QPainter &painter, unsigned int offset, unsigned int
 //------------------------------------------------------------------------------
 // Name: drawAsciiDumpToBuffer(QTextStream &stream, unsigned int offset, int size, const QByteArray &row_data) const
 //------------------------------------------------------------------------------
-void QHexView::drawAsciiDumpToBuffer(QTextStream &stream, unsigned int offset, int size, const QByteArray &row_data) const {
+void QHexView::drawAsciiDumpToBuffer(QTextStream &stream, quint64 offset, quint64 size, const QByteArray &row_data) const {
 	// i is the byte index
-	const int chars_per_row = bytesPerRow();
-	for(int i = 0; i < chars_per_row; ++i) {
+        const unsigned chars_per_row = bytesPerRow();
+        for(unsigned i = 0; i < chars_per_row; ++i) {
 
-		const int index = offset + i;
+                const quint64 index = offset + i;
 
 		if(index < size) {
 
@@ -863,7 +866,7 @@ void QHexView::drawAsciiDumpToBuffer(QTextStream &stream, unsigned int offset, i
 //------------------------------------------------------------------------------
 // Name: drawCommentsToBuffer(QTextStream &stream, unsigned int offset, int size) const
 //------------------------------------------------------------------------------
-void QHexView::drawCommentsToBuffer(QTextStream &stream, unsigned int offset, int size) const {
+void QHexView::drawCommentsToBuffer(QTextStream &stream, quint64 offset, quint64 size) const {
 	Q_UNUSED(size);
 	const address_t address = address_offset_ + offset;
 	const QString comment   = comment_server_->comment(address, word_width_);
@@ -925,15 +928,15 @@ QString QHexView::format_bytes(const QByteArray &row_data, int index) const {
 //------------------------------------------------------------------------------
 // Name: drawHexDumpToBuffer(QTextStream &stream, unsigned int offset, int size, const QByteArray &row_data) const
 //------------------------------------------------------------------------------
-void QHexView::drawHexDumpToBuffer(QTextStream &stream, unsigned int offset, int size, const QByteArray &row_data) const {
+void QHexView::drawHexDumpToBuffer(QTextStream &stream, quint64 offset, quint64 size, const QByteArray &row_data) const {
 
 	Q_UNUSED(size);
 
 	// i is the word we are currently rendering
-	for(int i = 0; i < row_width_; ++i) {
+        for(unsigned i = 0; i < row_width_; ++i) {
 
 		// index of first byte of current 'word'
-		const int index = offset + (i * word_width_);
+                const quint64 index = offset + (i * word_width_);
 
 		// equal <=, not < because we want to test the END of the word we
 		// about to render, not the start, it's allowed to end at the very last
@@ -959,14 +962,14 @@ void QHexView::drawHexDumpToBuffer(QTextStream &stream, unsigned int offset, int
 //------------------------------------------------------------------------------
 // Name: drawHexDump(QPainter &painter, unsigned int offset, unsigned int row, int size, int &word_count, const QByteArray &row_data) const
 //------------------------------------------------------------------------------
-void QHexView::drawHexDump(QPainter &painter, unsigned int offset, unsigned int row, int size, int &word_count, const QByteArray &row_data) const {
+void QHexView::drawHexDump(QPainter &painter, quint64 offset, unsigned int row, quint64 size, int &word_count, const QByteArray &row_data) const {
 	const int hex_dump_left = hexDumpLeft();
 
 	// i is the word we are currently rendering
-	for(int i = 0; i < row_width_; ++i) {
+        for(unsigned i = 0; i < row_width_; ++i) {
 
 		// index of first byte of current 'word'
-		const int index = offset + (i * word_width_);
+                const quint64 index = offset + (i * word_width_);
 
 		// equal <=, not < because we want to test the END of the word we
 		// about to render, not the start, it's allowed to end at the very last
@@ -1023,14 +1026,14 @@ void QHexView::drawHexDump(QPainter &painter, unsigned int offset, unsigned int 
 //------------------------------------------------------------------------------
 // Name: drawAsciiDump(QPainter &painter, unsigned int offset, unsigned int row, int size, const QByteArray &row_data) const
 //------------------------------------------------------------------------------
-void QHexView::drawAsciiDump(QPainter &painter, unsigned int offset, unsigned int row, int size, const QByteArray &row_data) const {
+void QHexView::drawAsciiDump(QPainter &painter, quint64 offset, unsigned int row, quint64 size, const QByteArray &row_data) const {
 	const int ascii_dump_left = asciiDumpLeft();
 
 	// i is the byte index
-	const int chars_per_row = bytesPerRow();
-	for(int i = 0; i < chars_per_row; ++i) {
+        const unsigned chars_per_row = bytesPerRow();
+        for(unsigned i = 0; i < chars_per_row; ++i) {
 
-		const int index = offset + i;
+                const quint64 index = offset + i;
 
 		if(index < size) {
 			const char ch        = row_data[i];
@@ -1086,7 +1089,7 @@ void QHexView::paintEvent(QPaintEvent *) {
 	const int chars_per_row = bytesPerRow();
 
 	// current actual offset (in bytes)
-	unsigned int offset = verticalScrollBar()->value() * chars_per_row;
+        quint64 offset = (quint64)verticalScrollBar()->value() * chars_per_row;
 
 	if(origin_ != 0) {
 		if(offset > 0) {
@@ -1098,7 +1101,7 @@ void QHexView::paintEvent(QPaintEvent *) {
 		}
 	}
 
-	const unsigned int data_size     = static_cast<unsigned int>(dataSize());
+        const quint64 data_size     = static_cast<quint64>(dataSize());
 	const unsigned int widget_height = static_cast<unsigned int>(height());
 
 	while(row + font_height_ < widget_height && offset < data_size) {
