@@ -501,12 +501,12 @@ unsigned int QHexView::addressLen() const {
 // Desc: recalculates scrollbar maximum value base on lines total and lines viewable
 //------------------------------------------------------------------------------
 void QHexView::updateScrollbars() {
-        const qint64 sz = dataSize();
-        const int bpr = bytesPerRow();
+    const qint64 sz = dataSize();
+    const int bpr = bytesPerRow();
 
-        qint64 maxval = sz / bpr + ((sz % bpr) ? 1 : 0) - viewport()->height() / font_height_;
+    qint64 maxval = sz / bpr + ((sz % bpr) ? 1 : 0) - viewport()->height() / font_height_;
 
-        verticalScrollBar()->setMaximum(qMax((qint64)0, maxval));
+    verticalScrollBar()->setMaximum(qMax((qint64)0, maxval));
 	horizontalScrollBar()->setMaximum(qMax(0, (line3() - viewport()->width()) / font_width_));
 }
 
