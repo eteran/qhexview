@@ -7,8 +7,8 @@ Copyright (C) 2010        Hugues Bruant
 
 This file can be used under one of two licenses.
 
-1. The GNU Public License, version 2.0, in LICENSE-gpl2.txt
-2. A BSD-Style License, in LICENSE-bsd2.txt.
+1. The GNU Public License, version 2.0, in COPYING-gpl2
+2. A BSD-Style License, in COPYING-bsd2.
 
 The license chosen is at the discretion of the user of this software. 
 */
