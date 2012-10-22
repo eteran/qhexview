@@ -33,6 +33,7 @@ The license chosen is at the discretion of the user of this software.
 #include <cctype>
 #include <climits>
 #include <memory>
+#include <cmath>
 
 namespace {
 	struct show_separator_tag {};
@@ -170,7 +171,7 @@ qint64 QHexView::dataSize() const {
 void QHexView::setFont(const QFont &f) {
 
 	// recalculate all of our metrics/offsets
-	const QFontMetrics fm(f);
+	const QFontMetricsF fm(f);
 	font_width_  = fm.width('X');
 	font_height_ = fm.height();
 
@@ -448,7 +449,7 @@ int QHexView::line2() const {
 //------------------------------------------------------------------------------
 int QHexView::line1() const {
 	if(show_address_) {
-		const int elements = addressLen();
+		const int elements = addressLen();		
 		return (elements * font_width_) + (font_width_ / 2);
 	} else {
 		return 0;
@@ -507,7 +508,7 @@ void QHexView::updateScrollbars() {
     qint64 maxval = sz / bpr + ((sz % bpr) ? 1 : 0) - viewport()->height() / font_height_;
 
     verticalScrollBar()->setMaximum(qMax((qint64)0, maxval));
-	horizontalScrollBar()->setMaximum(qMax(0, (line3() - viewport()->width()) / font_width_));
+	horizontalScrollBar()->setMaximum(qMax(0, static_cast<int>((line3() - viewport()->width()) / font_width_)));
 }
 
 //------------------------------------------------------------------------------
@@ -607,13 +608,13 @@ int QHexView::pixelToWord(int x, int y) const {
 	case Highlighting_Data:
 		// the right edge of a box is kinda quirky, so we pretend there is one
 		// extra character there
-		x = qBound(line1(), x, line2() + font_width_);
+		x = qBound(line1(), x, static_cast<int>(line2() + font_width_));
 
 		// the selection is in the data view portion
 		x -= line1();
 
 		// scale x/y down to character from pixels
-		x = x / font_width_ + (x % font_width_ >= font_width_ / 2 ? 1 : 0);
+		x = x / font_width_ + (fmod(x, font_width_) >= font_width_ / 2 ? 1 : 0);
 		y /= font_height_;
 
 		// make x relative to rendering mode of the bytes
@@ -966,10 +967,10 @@ void QHexView::drawHexDump(QPainter &painter, quint64 offset, unsigned int row, 
 	const int hex_dump_left = hexDumpLeft();
 
 	// i is the word we are currently rendering
-        for(unsigned i = 0; i < row_width_; ++i) {
+	for(unsigned i = 0; i < row_width_; ++i) {
 
 		// index of first byte of current 'word'
-                const quint64 index = offset + (i * word_width_);
+		const quint64 index = offset + (i * word_width_);
 
 		// equal <=, not < because we want to test the END of the word we
 		// about to render, not the start, it's allowed to end at the very last
@@ -978,27 +979,32 @@ void QHexView::drawHexDump(QPainter &painter, quint64 offset, unsigned int row, 
 
 			const QString byteBuffer = format_bytes(row_data, i * word_width_);
 
-			const int drawLeft = hex_dump_left + (i * (charsPerWord() + 1) * font_width_);
-
+			const qreal drawLeft  = hex_dump_left + (i * (charsPerWord() + 1) * font_width_);
+			const qreal drawWidth = charsPerWord() * font_width_;
+			
 			if(isSelected(index)) {
-				painter.fillRect(
-					drawLeft,
-					row,
-					charsPerWord() * font_width_,
-					font_height_,
-					palette().highlight()
-				);
 
+				painter.fillRect(
+					QRectF(
+						drawLeft,
+						row,
+						drawWidth,
+						font_height_),
+					palette().highlight()
+					);
+				
 				// should be highlight the space between us and the next word?
 				if(i != (row_width_ - 1)) {
 					if(isSelected(index + 1)) {
 						painter.fillRect(
-							drawLeft + font_width_,
-							row,
-							charsPerWord() * font_width_,
-							font_height_,
+							QRectF(
+								drawLeft + drawWidth,
+								row,
+								font_width_,
+								font_height_),
 							palette().highlight()
 							);
+						
 					}
 				}
 
@@ -1037,17 +1043,18 @@ void QHexView::drawAsciiDump(QPainter &painter, quint64 offset, unsigned int row
 
 		if(index < size) {
 			const char ch        = row_data[i];
-			const int drawLeft   = ascii_dump_left + i * font_width_;
+			const qreal drawLeft  = ascii_dump_left + i * font_width_;
 			const bool printable = is_printable(ch);
 
 			// drawing a selected character
 			if(isSelected(index)) {
-
+				
 				painter.fillRect(
-					drawLeft,
-					row,
-					font_width_,
-					font_height_,
+					QRectF(
+						drawLeft,
+						row,
+						font_width_,
+						font_height_),
 					palette().highlight()
 					);
 

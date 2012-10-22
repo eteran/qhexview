@@ -83,8 +83,8 @@ public:
 	int rowWidth() const;
 
 private:
-        unsigned row_width_;        // amount of 'words' per row
-        unsigned word_width_;       // size of a 'word' in bytes
+	unsigned row_width_;   // amount of 'words' per row
+	unsigned word_width_;  // size of a 'word' in bytes
 	QColor address_color_; // color of the address in display
 	bool show_hex_;        // should we show the hex display?
 	bool show_ascii_;      // should we show the ascii display?
@@ -96,7 +96,7 @@ public:
 
 	void setData(const QSharedPointer<QIODevice>& d);
 	void setAddressOffset(address_t offset);
-        void scrollTo(quint64 offset);
+	void scrollTo(quint64 offset);
 
 	address_t selectedBytesAddress() const;
 	unsigned int selectedBytesSize() const;
@@ -131,15 +131,15 @@ private:
 
 	unsigned int bytesPerRow() const;
 
-        qint64 dataSize() const;
+	qint64 dataSize() const;
 
-        void drawAsciiDump(QPainter &painter, quint64 offset, unsigned int row, quint64 size, const QByteArray &row_data) const;
-        void drawHexDump(QPainter &painter, quint64 offset, unsigned int row, quint64 size, int &word_count, const QByteArray &row_data) const;
-        void drawComments(QPainter &painter, quint64 offset, unsigned int row, quint64 size) const;
+	void drawAsciiDump(QPainter &painter, quint64 offset, unsigned int row, quint64 size, const QByteArray &row_data) const;
+	void drawHexDump(QPainter &painter, quint64 offset, unsigned int row, quint64 size, int &word_count, const QByteArray &row_data) const;
+	void drawComments(QPainter &painter, quint64 offset, unsigned int row, quint64 size) const;
 
-        void drawAsciiDumpToBuffer(QTextStream &stream, quint64 offset, quint64 size, const QByteArray &row_data) const;
-        void drawHexDumpToBuffer(QTextStream &stream, quint64 offset, quint64 size, const QByteArray &row_data) const;
-        void drawCommentsToBuffer(QTextStream &stream, quint64 offset, quint64 size) const;
+	void drawAsciiDumpToBuffer(QTextStream &stream, quint64 offset, quint64 size, const QByteArray &row_data) const;
+	void drawHexDumpToBuffer(QTextStream &stream, quint64 offset, quint64 size, const QByteArray &row_data) const;
+	void drawCommentsToBuffer(QTextStream &stream, quint64 offset, quint64 size) const;
 
 	QString formatAddress(address_t address);
 	QString format_bytes(const QByteArray &row_data, int index) const;
@@ -149,7 +149,7 @@ private:
 	address_t address_offset_; // this is the offset that our base address is relative to
 	int selection_start_;      // index of first selected word (or -1)
 	int selection_end_;        // index of last selected word (or -1)
-	int font_width_;           // width of a character in this font
+	qreal font_width_;         // width of a character in this font
 	int font_height_;          // height of a character in this font
 	QSharedPointer<QIODevice> data_;
 
