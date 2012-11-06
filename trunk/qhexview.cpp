@@ -961,9 +961,9 @@ void QHexView::drawHexDumpToBuffer(QTextStream &stream, quint64 offset, quint64 
 }
 
 //------------------------------------------------------------------------------
-// Name: drawHexDump(QPainter &painter, unsigned int offset, unsigned int row, int size, int &word_count, const QByteArray &row_data) const
+// Name: drawHexDump(QPainter &painter, unsigned int offset, unsigned int row, int size, int *word_count, const QByteArray &row_data) const
 //------------------------------------------------------------------------------
-void QHexView::drawHexDump(QPainter &painter, quint64 offset, unsigned int row, quint64 size, int &word_count, const QByteArray &row_data) const {
+void QHexView::drawHexDump(QPainter &painter, quint64 offset, unsigned int row, quint64 size, int *word_count, const QByteArray &row_data) const {
 	const int hex_dump_left = hexDumpLeft();
 
 	// i is the word we are currently rendering
@@ -1010,7 +1010,7 @@ void QHexView::drawHexDump(QPainter &painter, quint64 offset, unsigned int row, 
 
 				painter.setPen(QPen(palette().highlightedText().color()));
 			} else {
-				painter.setPen(QPen((word_count & 1) ? even_word_ : palette().text().color()));
+				painter.setPen(QPen((*word_count & 1) ? even_word_ : palette().text().color()));
 			}
 
 			painter.drawText(
@@ -1022,7 +1022,7 @@ void QHexView::drawHexDump(QPainter &painter, quint64 offset, unsigned int row, 
 				byteBuffer
 				);
 
-			++word_count;
+			++(*word_count);
 		} else {
 			break;
 		}
@@ -1108,7 +1108,7 @@ void QHexView::paintEvent(QPaintEvent *) {
 		}
 	}
 
-        const quint64 data_size     = static_cast<quint64>(dataSize());
+	const quint64 data_size     = static_cast<quint64>(dataSize());
 	const unsigned int widget_height = static_cast<unsigned int>(height());
 
 	while(row + font_height_ < widget_height && offset < data_size) {
@@ -1125,7 +1125,7 @@ void QHexView::paintEvent(QPaintEvent *) {
 			}
 
 			if(show_hex_) {
-				drawHexDump(painter, offset, row, data_size, word_count, row_data);
+				drawHexDump(painter, offset, row, data_size, &word_count, row_data);
 			}
 
 			if(show_ascii_) {
