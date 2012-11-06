@@ -134,7 +134,7 @@ private:
 	qint64 dataSize() const;
 
 	void drawAsciiDump(QPainter &painter, quint64 offset, unsigned int row, quint64 size, const QByteArray &row_data) const;
-	void drawHexDump(QPainter &painter, quint64 offset, unsigned int row, quint64 size, int &word_count, const QByteArray &row_data) const;
+	void drawHexDump(QPainter &painter, quint64 offset, unsigned int row, quint64 size, int *word_count, const QByteArray &row_data) const;
 	void drawComments(QPainter &painter, quint64 offset, unsigned int row, quint64 size) const;
 
 	void drawAsciiDumpToBuffer(QTextStream &stream, quint64 offset, quint64 size, const QByteArray &row_data) const;
