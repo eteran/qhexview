@@ -576,6 +576,7 @@ void QHexView::setShowAsciiDump(bool show) {
 // Desc: sets the row width (units is words)
 //------------------------------------------------------------------------------
 void QHexView::setRowWidth(int rowWidth) {
+	Q_ASSERT(rowWidth >= 0);
 	row_width_ = rowWidth;
 	updateScrollbars();
 	repaint();
@@ -586,6 +587,7 @@ void QHexView::setRowWidth(int rowWidth) {
 // Desc: sets how many bytes represent a word
 //------------------------------------------------------------------------------
 void QHexView::setWordWidth(int wordWidth) {
+	Q_ASSERT(wordWidth >= 0);
 	word_width_ = wordWidth;
 	updateScrollbars();
 	repaint();
@@ -650,7 +652,7 @@ int QHexView::pixelToWord(int x, int y) const {
 	}
 
 	// convert byte offset to word offset, rounding up
-	start_offset /= word_width_;
+	start_offset /= static_cast<unsigned int>(word_width_);
 
 	if((origin_ % word_width_) != 0) {
 		start_offset += 1;

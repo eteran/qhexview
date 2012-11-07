@@ -83,8 +83,8 @@ public:
 	int rowWidth() const;
 
 private:
-	unsigned row_width_;   // amount of 'words' per row
-	unsigned word_width_;  // size of a 'word' in bytes
+	int row_width_;   // amount of 'words' per row
+	int word_width_;  // size of a 'word' in bytes
 	QColor address_color_; // color of the address in display
 	bool show_hex_;        // should we show the hex display?
 	bool show_ascii_;      // should we show the ascii display?
