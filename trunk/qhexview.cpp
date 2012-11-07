@@ -936,7 +936,7 @@ void QHexView::drawHexDumpToBuffer(QTextStream &stream, quint64 offset, quint64 
 	Q_UNUSED(size);
 
 	// i is the word we are currently rendering
-        for(unsigned i = 0; i < row_width_; ++i) {
+        for(int i = 0; i < row_width_; ++i) {
 
 		// index of first byte of current 'word'
                 const quint64 index = offset + (i * word_width_);
@@ -969,7 +969,7 @@ void QHexView::drawHexDump(QPainter &painter, quint64 offset, unsigned int row, 
 	const int hex_dump_left = hexDumpLeft();
 
 	// i is the word we are currently rendering
-	for(unsigned i = 0; i < row_width_; ++i) {
+	for(int i = 0; i < row_width_; ++i) {
 
 		// index of first byte of current 'word'
 		const quint64 index = offset + (i * word_width_);
