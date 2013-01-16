@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2006 - 2012 Evan Teran
+Copyright (C) 2006 - 2013 Evan Teran
                           eteran@alum.rit.edu
 
 Copyright (C) 2010        Hugues Bruant
