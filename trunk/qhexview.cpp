@@ -78,7 +78,7 @@ namespace {
 	}
 	
 	//------------------------------------------------------------------------------
-	// Name: is_printable(unsigned char ch)
+	// Name: is_printable
 	// Desc: determines if a character has a printable ascii symbol
 	//------------------------------------------------------------------------------
 	bool is_printable(unsigned char ch) {
@@ -92,7 +92,7 @@ namespace {
 	}
 	
 	//------------------------------------------------------------------------------
-	// Name: add_toggle_action_to_menu(QMenu *menu, const QString &caption, bool checked, QObject *receiver, const char *slot)
+	// Name: add_toggle_action_to_menu
 	// Desc: convenience function used to add a checkable menu item to the context menu
 	//------------------------------------------------------------------------------
 	QAction *add_toggle_action_to_menu(QMenu *menu, const QString &caption, bool checked, QObject *receiver, const char *slot) {
@@ -106,7 +106,7 @@ namespace {
 }
 
 //------------------------------------------------------------------------------
-// Name: QHexView(QWidget *parent)
+// Name: QHexView
 // Desc: constructor
 //------------------------------------------------------------------------------
 QHexView::QHexView(QWidget *parent) : QAbstractScrollArea(parent),
@@ -125,14 +125,14 @@ QHexView::QHexView(QWidget *parent) : QAbstractScrollArea(parent),
 }
 
 //------------------------------------------------------------------------------
-// Name: ~QHexView()
+// Name: ~QHexView
 // Desc:
 //------------------------------------------------------------------------------
 QHexView::~QHexView() {
 }
 
 //------------------------------------------------------------------------------
-// Name: setShowAddressSeparator(bool value)
+// Name: setShowAddressSeparator
 // Desc:
 //------------------------------------------------------------------------------
 void QHexView::setShowAddressSeparator(bool value) {
@@ -141,7 +141,7 @@ void QHexView::setShowAddressSeparator(bool value) {
 }
 
 //------------------------------------------------------------------------------
-// Name: formatAddress(address_t address)
+// Name: formatAddres
 // Desc:
 //------------------------------------------------------------------------------
 QString QHexView::formatAddress(address_t address) {
@@ -149,7 +149,7 @@ QString QHexView::formatAddress(address_t address) {
 }
 
 //------------------------------------------------------------------------------
-// Name: repaint()
+// Name: repaint
 // Desc:
 //------------------------------------------------------------------------------
 void QHexView::repaint() {
@@ -157,7 +157,7 @@ void QHexView::repaint() {
 }
 
 //------------------------------------------------------------------------------
-// Name: dataSize() const
+// Name: dataSize
 // Desc: returns how much data we are viewing
 //------------------------------------------------------------------------------
 qint64 QHexView::dataSize() const {
@@ -165,7 +165,7 @@ qint64 QHexView::dataSize() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: setFont(const QFont &f)
+// Name: setFont
 // Desc: overloaded version of setFont, calculates font metrics for later
 //------------------------------------------------------------------------------
 void QHexView::setFont(const QFont &f) {
@@ -183,7 +183,7 @@ void QHexView::setFont(const QFont &f) {
 }
 
 //------------------------------------------------------------------------------
-// Name: createStandardContextMenu()
+// Name: createStandardContextMenu
 // Desc: creates the 'standard' context menu for the widget
 //------------------------------------------------------------------------------
 QMenu *QHexView::createStandardContextMenu() {
@@ -240,7 +240,7 @@ QMenu *QHexView::createStandardContextMenu() {
 }
 
 //------------------------------------------------------------------------------
-// Name: contextMenuEvent(QContextMenuEvent *event)
+// Name: contextMenuEvent
 // Desc: default context menu event, simply shows standard menu
 //------------------------------------------------------------------------------
 void QHexView::contextMenuEvent(QContextMenuEvent *event) {
@@ -250,7 +250,7 @@ void QHexView::contextMenuEvent(QContextMenuEvent *event) {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuCopy()
+// Name: mnuCopy
 // Desc:
 //------------------------------------------------------------------------------
 void QHexView::mnuCopy() {
@@ -316,7 +316,7 @@ void QHexView::mnuCopy() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuSetFont()
+// Name: mnuSetFont
 // Desc: slot used to set the font of the widget based on dialog selector
 //------------------------------------------------------------------------------
 void QHexView::mnuSetFont() {
@@ -324,7 +324,7 @@ void QHexView::mnuSetFont() {
 }
 
 //------------------------------------------------------------------------------
-// Name: clear()
+// Name: clear
 // Desc: clears all data from the view
 //------------------------------------------------------------------------------
 void QHexView::clear() {
@@ -336,7 +336,7 @@ void QHexView::clear() {
 }
 
 //------------------------------------------------------------------------------
-// Name: hasSelectedText() const
+// Name: hasSelectedText
 // Desc: returns true if any text is selected
 //------------------------------------------------------------------------------
 bool QHexView::hasSelectedText() const {
@@ -344,7 +344,7 @@ bool QHexView::hasSelectedText() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: isInViewableArea(int index) const
+// Name: isInViewableArea
 // Desc: returns true if the word at the given index is in the viewable area
 //------------------------------------------------------------------------------
 bool QHexView::isInViewableArea(int index) const {
@@ -358,7 +358,7 @@ bool QHexView::isInViewableArea(int index) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: keyPressEvent(QKeyEvent *event)
+// Name: keyPressEvent
 // Desc:
 //------------------------------------------------------------------------------
 void QHexView::keyPressEvent(QKeyEvent *event) {
@@ -418,7 +418,7 @@ void QHexView::keyPressEvent(QKeyEvent *event) {
 }
 
 //------------------------------------------------------------------------------
-// Name: line3() const
+// Name: line3
 // Desc: returns the x coordinate of the 3rd line
 //------------------------------------------------------------------------------
 int QHexView::line3() const {
@@ -431,7 +431,7 @@ int QHexView::line3() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: line2() const
+// Name: line2
 // Desc: returns the x coordinate of the 2nd line
 //------------------------------------------------------------------------------
 int QHexView::line2() const {
@@ -444,7 +444,7 @@ int QHexView::line2() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: line1() const
+// Name: line1
 // Desc: returns the x coordinate of the 1st line
 //------------------------------------------------------------------------------
 int QHexView::line1() const {
@@ -457,7 +457,7 @@ int QHexView::line1() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: hexDumpLeft() const
+// Name: hexDumpLeft
 // Desc: returns the x coordinate of the hex-dump field left edge
 //------------------------------------------------------------------------------
 int QHexView::hexDumpLeft() const {
@@ -465,7 +465,7 @@ int QHexView::hexDumpLeft() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: asciiDumpLeft() const
+// Name: asciiDumpLeft
 // Desc: returns the x coordinate of the ascii-dump field left edge
 //------------------------------------------------------------------------------
 int QHexView::asciiDumpLeft() const {
@@ -473,7 +473,7 @@ int QHexView::asciiDumpLeft() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: commentLeft() const
+// Name: commentLeft
 // Desc: returns the x coordinate of the comment field left edge
 //------------------------------------------------------------------------------
 int QHexView::commentLeft() const {
@@ -481,7 +481,7 @@ int QHexView::commentLeft() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: charsPerWord() const
+// Name: charsPerWord
 // Desc: returns how many characters each word takes up
 //------------------------------------------------------------------------------
 unsigned int QHexView::charsPerWord() const {
@@ -489,7 +489,7 @@ unsigned int QHexView::charsPerWord() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: addressLen() const
+// Name: addressLen
 // Desc: returns the lenth in characters the address will take up
 //------------------------------------------------------------------------------
 unsigned int QHexView::addressLen() const {
@@ -498,7 +498,7 @@ unsigned int QHexView::addressLen() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: updateScrollbars()
+// Name: updateScrollbars
 // Desc: recalculates scrollbar maximum value base on lines total and lines viewable
 //------------------------------------------------------------------------------
 void QHexView::updateScrollbars() {
@@ -512,7 +512,7 @@ void QHexView::updateScrollbars() {
 }
 
 //------------------------------------------------------------------------------
-// Name: scrollTo(unsigned int offset)
+// Name: scrollTo
 // Desc: scrolls view to given byte offset
 //------------------------------------------------------------------------------
 void QHexView::scrollTo(quint64 offset) {
@@ -532,7 +532,7 @@ void QHexView::scrollTo(quint64 offset) {
 }
 
 //------------------------------------------------------------------------------
-// Name: setShowAddress(bool show)
+// Name: setShowAddress
 // Desc: sets if we are to display the address column
 //------------------------------------------------------------------------------
 void QHexView::setShowAddress(bool show) {
@@ -542,7 +542,7 @@ void QHexView::setShowAddress(bool show) {
 }
 
 //------------------------------------------------------------------------------
-// Name: setShowHexDump(bool show)
+// Name: setShowHexDump
 // Desc: sets if we are to display the hex-dump column
 //------------------------------------------------------------------------------
 void QHexView::setShowHexDump(bool show) {
@@ -552,7 +552,7 @@ void QHexView::setShowHexDump(bool show) {
 }
 
 //------------------------------------------------------------------------------
-// Name: setShowComments(bool show)
+// Name: setShowComments
 // Desc: sets if we are to display the comments column
 //------------------------------------------------------------------------------
 void QHexView::setShowComments(bool show) {
@@ -562,7 +562,7 @@ void QHexView::setShowComments(bool show) {
 }
 
 //------------------------------------------------------------------------------
-// Name: setShowAsciiDump(bool show)
+// Name: setShowAsciiDump
 // Desc: sets if we are to display the ascii-dump column
 //------------------------------------------------------------------------------
 void QHexView::setShowAsciiDump(bool show) {
@@ -572,7 +572,7 @@ void QHexView::setShowAsciiDump(bool show) {
 }
 
 //------------------------------------------------------------------------------
-// Name: setRowWidth(int rowWidth)
+// Name: setRowWidth
 // Desc: sets the row width (units is words)
 //------------------------------------------------------------------------------
 void QHexView::setRowWidth(int rowWidth) {
@@ -583,7 +583,7 @@ void QHexView::setRowWidth(int rowWidth) {
 }
 
 //------------------------------------------------------------------------------
-// Name: setWordWidth(int wordWidth)
+// Name: setWordWidth
 // Desc: sets how many bytes represent a word
 //------------------------------------------------------------------------------
 void QHexView::setWordWidth(int wordWidth) {
@@ -594,14 +594,14 @@ void QHexView::setWordWidth(int wordWidth) {
 }
 
 //------------------------------------------------------------------------------
-// Name: bytesPerRow() const
+// Name: bytesPerRow
 //------------------------------------------------------------------------------
 unsigned int QHexView::bytesPerRow() const {
 	return row_width_ * word_width_;
 }
 
 //------------------------------------------------------------------------------
-// Name: pixelToWord(int x, int y) const
+// Name: pixelToWord
 //------------------------------------------------------------------------------
 int QHexView::pixelToWord(int x, int y) const {
 	int word = -1;
@@ -664,7 +664,7 @@ int QHexView::pixelToWord(int x, int y) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: mouseDoubleClickEvent(QMouseEvent *event)
+// Name: mouseDoubleClickEvent
 //------------------------------------------------------------------------------
 void QHexView::mouseDoubleClickEvent(QMouseEvent *event) {
 	if(event->button() == Qt::LeftButton) {
@@ -690,7 +690,7 @@ void QHexView::mouseDoubleClickEvent(QMouseEvent *event) {
 }
 
 //------------------------------------------------------------------------------
-// Name: mousePressEvent(QMouseEvent *event)
+// Name: mousePressEvent
 //------------------------------------------------------------------------------
 void QHexView::mousePressEvent(QMouseEvent *event) {
 	if(event->button() == Qt::LeftButton) {
@@ -721,7 +721,7 @@ void QHexView::mousePressEvent(QMouseEvent *event) {
 }
 
 //------------------------------------------------------------------------------
-// Name: mouseMoveEvent(QMouseEvent *event)
+// Name: mouseMoveEvent
 //------------------------------------------------------------------------------
 void QHexView::mouseMoveEvent(QMouseEvent *event) {
 	if(highlighting_ != Highlighting_None) {
@@ -760,7 +760,7 @@ void QHexView::mouseMoveEvent(QMouseEvent *event) {
 }
 
 //------------------------------------------------------------------------------
-// Name: mouseReleaseEvent(QMouseEvent *event)
+// Name: mouseReleaseEvent
 //------------------------------------------------------------------------------
 void QHexView::mouseReleaseEvent(QMouseEvent *event) {
 	if(event->button() == Qt::LeftButton) {
@@ -769,7 +769,7 @@ void QHexView::mouseReleaseEvent(QMouseEvent *event) {
 }
 
 //------------------------------------------------------------------------------
-// Name: setData(const QSharedPointer<QIODevice>& d)
+// Name: setData
 //------------------------------------------------------------------------------
 void QHexView::setData(const QSharedPointer<QIODevice>& d) {
 	if (d->isSequential() || !d->size()) {
@@ -787,21 +787,21 @@ void QHexView::setData(const QSharedPointer<QIODevice>& d) {
 }
 
 //------------------------------------------------------------------------------
-// Name: resizeEvent(QResizeEvent *)
+// Name: resizeEvent
 //------------------------------------------------------------------------------
 void QHexView::resizeEvent(QResizeEvent *) {
 	updateScrollbars();
 }
 
 //------------------------------------------------------------------------------
-// Name: setAddressOffset(address_t offset)
+// Name: setAddressOffset
 //------------------------------------------------------------------------------
 void QHexView::setAddressOffset(address_t offset) {
 	address_offset_ = offset;
 }
 
 //------------------------------------------------------------------------------
-// Name: isSelected(int index) const
+// Name: isSelected
 //------------------------------------------------------------------------------
 bool QHexView::isSelected(int index) const {
 
@@ -819,7 +819,7 @@ bool QHexView::isSelected(int index) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: drawComments(QPainter &painter, unsigned int offset, unsigned int row, int size) const
+// Name: drawComments
 //------------------------------------------------------------------------------
 void QHexView::drawComments(QPainter &painter, quint64 offset, unsigned int row, quint64 size) const {
 
@@ -841,7 +841,7 @@ void QHexView::drawComments(QPainter &painter, quint64 offset, unsigned int row,
 }
 
 //------------------------------------------------------------------------------
-// Name: drawAsciiDumpToBuffer(QTextStream &stream, unsigned int offset, int size, const QByteArray &row_data) const
+// Name: drawAsciiDumpToBuffer
 //------------------------------------------------------------------------------
 void QHexView::drawAsciiDumpToBuffer(QTextStream &stream, quint64 offset, quint64 size, const QByteArray &row_data) const {
 	// i is the byte index
@@ -867,7 +867,7 @@ void QHexView::drawAsciiDumpToBuffer(QTextStream &stream, quint64 offset, quint6
 }
 
 //------------------------------------------------------------------------------
-// Name: drawCommentsToBuffer(QTextStream &stream, unsigned int offset, int size) const
+// Name: drawCommentsToBuffer
 //------------------------------------------------------------------------------
 void QHexView::drawCommentsToBuffer(QTextStream &stream, quint64 offset, quint64 size) const {
 	Q_UNUSED(size);
@@ -877,7 +877,7 @@ void QHexView::drawCommentsToBuffer(QTextStream &stream, quint64 offset, quint64
 }
 
 //------------------------------------------------------------------------------
-// Name: format_bytes(const C &data_ref, int index) const
+// Name: format_bytes
 // Desc: formats bytes in a way that's suitable for rendering in a hexdump
 //       having this as a separate function serves two purposes.
 //       #1 no code duplication between the buffer and QPainter versions
@@ -929,7 +929,7 @@ QString QHexView::format_bytes(const QByteArray &row_data, int index) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: drawHexDumpToBuffer(QTextStream &stream, unsigned int offset, int size, const QByteArray &row_data) const
+// Name: drawHexDumpToBuffer
 //------------------------------------------------------------------------------
 void QHexView::drawHexDumpToBuffer(QTextStream &stream, quint64 offset, quint64 size, const QByteArray &row_data) const {
 
@@ -963,7 +963,7 @@ void QHexView::drawHexDumpToBuffer(QTextStream &stream, quint64 offset, quint64 
 }
 
 //------------------------------------------------------------------------------
-// Name: drawHexDump(QPainter &painter, unsigned int offset, unsigned int row, int size, int *word_count, const QByteArray &row_data) const
+// Name: drawHexDump
 //------------------------------------------------------------------------------
 void QHexView::drawHexDump(QPainter &painter, quint64 offset, unsigned int row, quint64 size, int *word_count, const QByteArray &row_data) const {
 	const int hex_dump_left = hexDumpLeft();
@@ -1032,7 +1032,7 @@ void QHexView::drawHexDump(QPainter &painter, quint64 offset, unsigned int row, 
 }
 
 //------------------------------------------------------------------------------
-// Name: drawAsciiDump(QPainter &painter, unsigned int offset, unsigned int row, int size, const QByteArray &row_data) const
+// Name: drawAsciiDump
 //------------------------------------------------------------------------------
 void QHexView::drawAsciiDump(QPainter &painter, quint64 offset, unsigned int row, quint64 size, const QByteArray &row_data) const {
 	const int ascii_dump_left = asciiDumpLeft();
@@ -1083,7 +1083,7 @@ void QHexView::drawAsciiDump(QPainter &painter, quint64 offset, unsigned int row
 }
 
 //------------------------------------------------------------------------------
-// Name: paintEvent(QPaintEvent *)
+// Name: paintEvent
 //------------------------------------------------------------------------------
 void QHexView::paintEvent(QPaintEvent *) {
 
@@ -1162,7 +1162,7 @@ void QHexView::paintEvent(QPaintEvent *) {
 }
 
 //------------------------------------------------------------------------------
-// Name: selectAll()
+// Name: selectAll
 //------------------------------------------------------------------------------
 void QHexView::selectAll() {
 	selection_start_ = 0;
@@ -1170,7 +1170,7 @@ void QHexView::selectAll() {
 }
 
 //------------------------------------------------------------------------------
-// Name: deselect()
+// Name: deselect
 //------------------------------------------------------------------------------
 void QHexView::deselect() {
 	selection_start_ = -1;
@@ -1178,7 +1178,7 @@ void QHexView::deselect() {
 }
 
 //------------------------------------------------------------------------------
-// Name: allBytes() const
+// Name: allBytes
 //------------------------------------------------------------------------------
 QByteArray QHexView::allBytes() const {
 	data_->seek(0);
@@ -1186,7 +1186,7 @@ QByteArray QHexView::allBytes() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: selectedBytes() const
+// Name: selectedBytes
 //------------------------------------------------------------------------------
 QByteArray QHexView::selectedBytes() const {
 	if(hasSelectedText()) {
@@ -1201,7 +1201,7 @@ QByteArray QHexView::selectedBytes() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: selectedBytesAddress() const
+// Name: selectedBytesAddress
 //------------------------------------------------------------------------------
 QHexView::address_t QHexView::selectedBytesAddress() const {
 	const address_t select_base = qMin(selection_start_, selection_end_);
@@ -1209,7 +1209,7 @@ QHexView::address_t QHexView::selectedBytesAddress() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: selectedBytesSize() const
+// Name: selectedBytesSize
 //------------------------------------------------------------------------------
 unsigned int QHexView::selectedBytesSize() const {
 
@@ -1224,70 +1224,70 @@ unsigned int QHexView::selectedBytesSize() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: addressOffset() const
+// Name: addressOffset
 //------------------------------------------------------------------------------
 QHexView::address_t QHexView::addressOffset() const {
 	return address_offset_;
 }
 
 //------------------------------------------------------------------------------
-// Name: setCommentServer(const CommentServerInterface::pointer &p)
+// Name: setCommentServer
 //------------------------------------------------------------------------------
 void QHexView::setCommentServer(const CommentServerInterface::pointer &p) {
 	comment_server_ = p;
 }
 
 //------------------------------------------------------------------------------
-// Name: commentServer() const
+// Name: commentServer
 //------------------------------------------------------------------------------
 QHexView::CommentServerInterface::pointer QHexView::commentServer() const {
 	return comment_server_;
 }
 
 //------------------------------------------------------------------------------
-// Name: showHexDump() const
+// Name: showHexDump
 //------------------------------------------------------------------------------
 bool QHexView::showHexDump() const {
 	return show_hex_;
 }
 
 //------------------------------------------------------------------------------
-// Name: showAddress() const
+// Name: showAddress
 //------------------------------------------------------------------------------
 bool QHexView::showAddress() const {
 	return show_address_;
 }
 
 //------------------------------------------------------------------------------
-// Name: showAsciiDump() const
+// Name: showAsciiDump
 //------------------------------------------------------------------------------
 bool QHexView::showAsciiDump() const {
 	return show_ascii_;
 }
 
 //------------------------------------------------------------------------------
-// Name: showComments() const
+// Name: showComments
 //------------------------------------------------------------------------------
 bool QHexView::showComments() const {
 	return show_comments_;
 }
 
 //------------------------------------------------------------------------------
-// Name: wordWidth() const
+// Name: wordWidth
 //------------------------------------------------------------------------------
 int QHexView::wordWidth() const {
 	return word_width_;
 }
 
 //------------------------------------------------------------------------------
-// Name: rowWidth() const
+// Name: rowWidth
 //------------------------------------------------------------------------------
 int QHexView::rowWidth() const {
 	return row_width_;
 }
 
 //------------------------------------------------------------------------------
-// Name: firstVisibleAddress() const
+// Name: firstVisibleAddress
 //------------------------------------------------------------------------------
 QHexView::address_t QHexView::firstVisibleAddress() const {
 	// current actual offset (in bytes)
