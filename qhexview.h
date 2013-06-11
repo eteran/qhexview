@@ -21,9 +21,10 @@ The license chosen is at the discretion of the user of this software.
 #include <QSharedPointer>
 #include <QString>
 
+class QBuffer;
+class QIODevice;
 class QMenu;
 class QTextStream;
-class QIODevice;
 
 class QHexView : public QAbstractScrollArea {
 	Q_OBJECT
@@ -92,9 +93,9 @@ private:
 	bool show_comments_;
 
 public:
-	const QSharedPointer<QIODevice>& data() const { return data_; }
+	QIODevice *data() const { return data_; }
 
-	void setData(const QSharedPointer<QIODevice>& d);
+	void setData(QIODevice *d);
 	void setAddressOffset(address_t offset);
 	void scrollTo(quint64 offset);
 
@@ -151,7 +152,8 @@ private:
 	int selection_end_;        // index of last selected word (or -1)
 	qreal font_width_;         // width of a character in this font
 	int font_height_;          // height of a character in this font
-	QSharedPointer<QIODevice> data_;
+	QBuffer   *internal_buffer_;
+	QIODevice *data_;
 
 	enum {
 		Highlighting_None,

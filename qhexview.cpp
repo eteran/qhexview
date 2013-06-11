@@ -113,10 +113,12 @@ QHexView::QHexView(QWidget *parent) : QAbstractScrollArea(parent),
 		row_width_(16), word_width_(1), address_color_(Qt::red),
 		show_hex_(true), show_ascii_(true), show_address_(true),
 		show_comments_(true), origin_(0), address_offset_(0),
-		selection_start_(-1), selection_end_(-1),
-		highlighting_(Highlighting_None), even_word_(Qt::blue),
-		non_printable_text_(Qt::red), unprintable_char_('.'), show_line1_(true),
-		show_line2_(true), show_line3_(true), show_address_separator_(true) {
+		selection_start_(-1), selection_end_(-1), font_width_(0),
+		font_height_(0), internal_buffer_(0), data_(0), 
+		highlighting_(Highlighting_None), even_word_(Qt::blue), 
+		non_printable_text_(Qt::red), unprintable_char_('.'), 
+		show_line1_(true), show_line2_(true), show_line3_(true), 
+		show_address_separator_(true) {
 
 	// default to a simple monospace font
 	setFont(QFont("Monospace", 8));
@@ -129,6 +131,7 @@ QHexView::QHexView(QWidget *parent) : QAbstractScrollArea(parent),
 // Desc:
 //------------------------------------------------------------------------------
 QHexView::~QHexView() {
+	delete internal_buffer_;
 }
 
 //------------------------------------------------------------------------------
@@ -328,10 +331,7 @@ void QHexView::mnuSetFont() {
 // Desc: clears all data from the view
 //------------------------------------------------------------------------------
 void QHexView::clear() {
-	if(data_ != 0) {
-		data_.clear();
-	}
-
+	data_ = 0;
 	repaint();
 }
 
@@ -771,12 +771,12 @@ void QHexView::mouseReleaseEvent(QMouseEvent *event) {
 //------------------------------------------------------------------------------
 // Name: setData
 //------------------------------------------------------------------------------
-void QHexView::setData(const QSharedPointer<QIODevice>& d) {
+void QHexView::setData(QIODevice *d) {
 	if (d->isSequential() || !d->size()) {
-		QBuffer *b = new QBuffer;
-		b->setData(d->readAll());
-		b->open(QBuffer::ReadOnly);
-		data_ = QSharedPointer<QIODevice>(b);
+		internal_buffer_ = new QBuffer;
+		internal_buffer_->setData(d->readAll());
+		internal_buffer_->open(QBuffer::ReadOnly);
+		data_ = internal_buffer_;
 	} else {
 		data_ = d;
 	}
