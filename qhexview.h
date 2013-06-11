@@ -100,7 +100,7 @@ public:
 	void scrollTo(quint64 offset);
 
 	address_t selectedBytesAddress() const;
-	unsigned int selectedBytesSize() const;
+	quint64 selectedBytesSize() const;
 	QByteArray selectedBytes() const;
 	QByteArray allBytes() const;
 	QMenu *createStandardContextMenu();
@@ -116,10 +116,10 @@ public Q_SLOTS:
 private:
 	void updateScrollbars();
 
-	bool isSelected(int index) const;
-	bool isInViewableArea(int index) const;
+	bool isSelected(qint64 index) const;
+	bool isInViewableArea(qint64 index) const;
 
-	int pixelToWord(int x, int y) const;
+	qint64 pixelToWord(int x, int y) const;
 
 	unsigned int charsPerWord() const;
 	int hexDumpLeft() const;
@@ -148,8 +148,8 @@ private:
 private:
 	address_t origin_;
 	address_t address_offset_; // this is the offset that our base address is relative to
-	int selection_start_;      // index of first selected word (or -1)
-	int selection_end_;        // index of last selected word (or -1)
+	qint64 selection_start_;   // index of first selected word (or -1)
+	qint64 selection_end_;     // index of last selected word (or -1)
 	qreal font_width_;         // width of a character in this font
 	int font_height_;          // height of a character in this font
 	QBuffer   *internal_buffer_;
