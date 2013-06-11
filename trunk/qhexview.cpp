@@ -274,9 +274,9 @@ void QHexView::mnuCopy() {
 			}
 		}
 
-		const unsigned int end   = qMax(selection_start_, selection_end_);
-		const unsigned int start = qMin(selection_start_, selection_end_);
-		const int data_size      = dataSize();
+		const qint64 end   = qMax(selection_start_, selection_end_);
+		const qint64 start = qMin(selection_start_, selection_end_);
+		const int data_size = dataSize();
 
 		// offset now refers to the first visible byte
 		while(offset < end) {
@@ -347,12 +347,12 @@ bool QHexView::hasSelectedText() const {
 // Name: isInViewableArea
 // Desc: returns true if the word at the given index is in the viewable area
 //------------------------------------------------------------------------------
-bool QHexView::isInViewableArea(int index) const {
+bool QHexView::isInViewableArea(qint64 index) const {
 
-	const int firstViewableWord = verticalScrollBar()->value() * row_width_;
-	const int viewableLines     = viewport()->height() / font_height_;
-	const int viewableWords     = viewableLines * row_width_;
-	const int lastViewableWord  = firstViewableWord + viewableWords;
+	const qint64 firstViewableWord = verticalScrollBar()->value() * row_width_;
+	const qint64 viewableLines     = viewport()->height() / font_height_;
+	const qint64 viewableWords     = viewableLines * row_width_;
+	const qint64 lastViewableWord  = firstViewableWord + viewableWords;
 
 	return index >= firstViewableWord && index < lastViewableWord;
 }
@@ -377,7 +377,7 @@ void QHexView::keyPressEvent(QKeyEvent *event) {
 		case Qt::Key_Down:
 
 			do {
-				int offset = verticalScrollBar()->value() * bytesPerRow();
+				qint64 offset = verticalScrollBar()->value() * bytesPerRow();
 
 				if(origin_ != 0) {
 					if(offset > 0) {
@@ -395,7 +395,7 @@ void QHexView::keyPressEvent(QKeyEvent *event) {
 			return;
 		case Qt::Key_Up:
 			do {
-				int offset = verticalScrollBar()->value() * bytesPerRow();
+				qint64 offset = verticalScrollBar()->value() * bytesPerRow();
 
 				if(origin_ != 0) {
 					if(offset > 0) {
@@ -603,7 +603,7 @@ unsigned int QHexView::bytesPerRow() const {
 //------------------------------------------------------------------------------
 // Name: pixelToWord
 //------------------------------------------------------------------------------
-int QHexView::pixelToWord(int x, int y) const {
+qint64 QHexView::pixelToWord(int x, int y) const {
 	int word = -1;
 
 	switch(highlighting_) {
@@ -641,7 +641,7 @@ int QHexView::pixelToWord(int x, int y) const {
 	}
 
 	// starting offset in bytes
-	unsigned int start_offset = verticalScrollBar()->value() * bytesPerRow();
+	quint64 start_offset = verticalScrollBar()->value() * bytesPerRow();
 
 	// take into account the origin
 	if(origin_ != 0) {
@@ -674,8 +674,8 @@ void QHexView::mouseDoubleClickEvent(QMouseEvent *event) {
 
 			highlighting_ = Highlighting_Data;
 
-			const int offset = pixelToWord(x, y);
-			int byte_offset = offset * word_width_;
+			const qint64 offset = pixelToWord(x, y);
+			qint64 byte_offset = offset * word_width_;
 			if(origin_) {
 				if(origin_ % word_width_) {
 					byte_offset -= word_width_ - (origin_ % word_width_);
@@ -703,8 +703,8 @@ void QHexView::mousePressEvent(QMouseEvent *event) {
 			highlighting_ = Highlighting_Ascii;
 		}
 
-		const int offset = pixelToWord(x, y);
-		int byte_offset = offset * word_width_;
+		const qint64 offset = pixelToWord(x, y);
+		qint64 byte_offset = offset * word_width_;
 		if(origin_) {
 			if(origin_ % word_width_) {
 				byte_offset -= word_width_ - (origin_ % word_width_);
@@ -728,14 +728,14 @@ void QHexView::mouseMoveEvent(QMouseEvent *event) {
 		const int x = event->x() + horizontalScrollBar()->value() * font_width_;
 		const int y = event->y();
 
-		const int offset = pixelToWord(x, y);
+		const qint64 offset = pixelToWord(x, y);
 
 		if(selection_start_ != -1) {
 			if(offset == -1) {
 				selection_end_ = (row_width_ - selection_start_) + selection_start_;
 			} else {
 
-				int byte_offset = (offset * word_width_);
+				qint64 byte_offset = (offset * word_width_);
 
 				if(origin_) {
 					if(origin_ % word_width_) {
@@ -803,10 +803,10 @@ void QHexView::setAddressOffset(address_t offset) {
 //------------------------------------------------------------------------------
 // Name: isSelected
 //------------------------------------------------------------------------------
-bool QHexView::isSelected(int index) const {
+bool QHexView::isSelected(qint64 index) const {
 
 	bool ret = false;
-	if(index < static_cast<int>(dataSize())) {
+	if(index < static_cast<qint64>(dataSize())) {
 		if(selection_start_ != selection_end_) {
 			if(selection_start_ < selection_end_) {
 				ret = (index >= selection_start_ && index < selection_end_);
@@ -1110,7 +1110,7 @@ void QHexView::paintEvent(QPaintEvent *) {
 		}
 	}
 
-	const quint64 data_size     = static_cast<quint64>(dataSize());
+	const quint64 data_size          = static_cast<quint64>(dataSize());
 	const unsigned int widget_height = static_cast<unsigned int>(height());
 
 	while(row + font_height_ < widget_height && offset < data_size) {
@@ -1190,8 +1190,8 @@ QByteArray QHexView::allBytes() const {
 //------------------------------------------------------------------------------
 QByteArray QHexView::selectedBytes() const {
 	if(hasSelectedText()) {
-		const int s = qMin(selection_start_, selection_end_);
-		const int e = qMax(selection_start_, selection_end_);
+		const qint64 s = qMin(selection_start_, selection_end_);
+		const qint64 e = qMax(selection_start_, selection_end_);
 
 		data_->seek(s);
 		return data_->read(e - s);
@@ -1211,9 +1211,9 @@ QHexView::address_t QHexView::selectedBytesAddress() const {
 //------------------------------------------------------------------------------
 // Name: selectedBytesSize
 //------------------------------------------------------------------------------
-unsigned int QHexView::selectedBytesSize() const {
+quint64 QHexView::selectedBytesSize() const {
 
-	unsigned int ret;
+	quint64 ret;
 	if(selection_end_ > selection_start_) {
 		ret = selection_end_ - selection_start_;
 	} else {
