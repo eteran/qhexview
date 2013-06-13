@@ -10,7 +10,7 @@ This file can be used under one of two licenses.
 1. The GNU Public License, version 2.0, in COPYING-gpl2
 2. A BSD-Style License, in COPYING-bsd2.
 
-The license chosen is at the discretion of the user of this software. 
+The license chosen is at the discretion of the user of this software.
 */
 
 #include "qhexview.h"
@@ -76,7 +76,7 @@ namespace {
 		if(show_separator) return address_format<T, sizeof(T)>::format_address(address, show_separator_tag());
 		else               return address_format<T, sizeof(T)>::format_address(address);
 	}
-	
+
 	//------------------------------------------------------------------------------
 	// Name: is_printable
 	// Desc: determines if a character has a printable ascii symbol
@@ -90,15 +90,15 @@ namespace {
 			return (ch & 0xff) >= 0xa0;
 		}
 	}
-	
+
 	//------------------------------------------------------------------------------
 	// Name: add_toggle_action_to_menu
 	// Desc: convenience function used to add a checkable menu item to the context menu
 	//------------------------------------------------------------------------------
 	QAction *add_toggle_action_to_menu(QMenu *menu, const QString &caption, bool checked, QObject *receiver, const char *slot) {
 		QAction *const action = new QAction(caption, menu);
-    	action->setCheckable(true);
-    	action->setChecked(checked);
+		action->setCheckable(true);
+		action->setChecked(checked);
 		menu->addAction(action);
 		QObject::connect(action, SIGNAL(toggled(bool)), receiver, slot);
 		return action;
@@ -114,10 +114,10 @@ QHexView::QHexView(QWidget *parent) : QAbstractScrollArea(parent),
 		show_hex_(true), show_ascii_(true), show_address_(true),
 		show_comments_(true), origin_(0), address_offset_(0),
 		selection_start_(-1), selection_end_(-1), font_width_(0),
-		font_height_(0), internal_buffer_(0), data_(0), 
-		highlighting_(Highlighting_None), even_word_(Qt::blue), 
-		non_printable_text_(Qt::red), unprintable_char_('.'), 
-		show_line1_(true), show_line2_(true), show_line3_(true), 
+		font_height_(0), internal_buffer_(0), data_(0),
+		highlighting_(Highlighting_None), even_word_(Qt::blue),
+		non_printable_text_(Qt::red), unprintable_char_('.'),
+		show_line1_(true), show_line2_(true), show_line3_(true),
 		show_address_separator_(true) {
 
 	// default to a simple monospace font
@@ -449,7 +449,7 @@ int QHexView::line2() const {
 //------------------------------------------------------------------------------
 int QHexView::line1() const {
 	if(show_address_) {
-		const int elements = addressLen();		
+		const int elements = addressLen();
 		return (elements * font_width_) + (font_width_ / 2);
 	} else {
 		return 0;
@@ -983,7 +983,7 @@ void QHexView::drawHexDump(QPainter &painter, quint64 offset, unsigned int row, 
 
 			const qreal drawLeft  = hex_dump_left + (i * (charsPerWord() + 1) * font_width_);
 			const qreal drawWidth = charsPerWord() * font_width_;
-			
+
 			if(isSelected(index)) {
 
 				painter.fillRect(
@@ -994,7 +994,7 @@ void QHexView::drawHexDump(QPainter &painter, quint64 offset, unsigned int row, 
 						font_height_),
 					palette().highlight()
 					);
-				
+
 				// should be highlight the space between us and the next word?
 				if(i != (row_width_ - 1)) {
 					if(isSelected(index + 1)) {
@@ -1006,7 +1006,7 @@ void QHexView::drawHexDump(QPainter &painter, quint64 offset, unsigned int row, 
 								font_height_),
 							palette().highlight()
 							);
-						
+
 					}
 				}
 
@@ -1050,7 +1050,7 @@ void QHexView::drawAsciiDump(QPainter &painter, quint64 offset, unsigned int row
 
 			// drawing a selected character
 			if(isSelected(index)) {
-				
+
 				painter.fillRect(
 					QRectF(
 						drawLeft,
