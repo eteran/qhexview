@@ -110,15 +110,13 @@ namespace {
 // Desc: constructor
 //------------------------------------------------------------------------------
 QHexView::QHexView(QWidget *parent) : QAbstractScrollArea(parent),
-		row_width_(16), word_width_(1), address_color_(Qt::red),
-		show_hex_(true), show_ascii_(true), show_address_(true),
-		show_comments_(true), origin_(0), address_offset_(0),
-		selection_start_(-1), selection_end_(-1), font_width_(0),
-		font_height_(0), internal_buffer_(0), data_(0),
-		highlighting_(Highlighting_None), even_word_(Qt::blue),
-		non_printable_text_(Qt::red), unprintable_char_('.'),
-		show_line1_(true), show_line2_(true), show_line3_(true),
-		show_address_separator_(true) {
+		internal_buffer_(0), address_color_(Qt::red), even_word_(Qt::blue),
+		non_printable_text_(Qt::red), data_(0), address_offset_(0), origin_(0),
+		show_address_(true), show_ascii_(true), show_comments_(true),
+		show_hex_(true), show_address_separator_(true), show_line1_(true),
+		show_line2_(true), show_line3_(true), unprintable_char_('.'),
+		font_height_(0), row_width_(16), word_width_(1), selection_end_(-1),
+		selection_start_(-1), font_width_(0), highlighting_(Highlighting_None) {
 
 	// default to a simple monospace font
 	setFont(QFont("Monospace", 8));
@@ -128,7 +126,7 @@ QHexView::QHexView(QWidget *parent) : QAbstractScrollArea(parent),
 
 //------------------------------------------------------------------------------
 // Name: ~QHexView
-// Desc:
+// Desc: deconstructor
 //------------------------------------------------------------------------------
 QHexView::~QHexView() {
 	delete internal_buffer_;
@@ -144,7 +142,7 @@ void QHexView::setShowAddressSeparator(bool value) {
 }
 
 //------------------------------------------------------------------------------
-// Name: formatAddres
+// Name: formatAddress
 // Desc:
 //------------------------------------------------------------------------------
 QString QHexView::formatAddress(address_t address) {
@@ -265,7 +263,7 @@ void QHexView::mnuCopy() {
 		// current actual offset (in bytes)
 
 		const int chars_per_row = bytesPerRow();
-		unsigned int offset = verticalScrollBar()->value() * chars_per_row;
+		qint64 offset = static_cast<quint64>(verticalScrollBar()->value()) * chars_per_row;
 
 		if(origin_ != 0) {
 			if(offset > 0) {
@@ -274,9 +272,9 @@ void QHexView::mnuCopy() {
 			}
 		}
 
-		const qint64 end   = qMax(selection_start_, selection_end_);
-		const qint64 start = qMin(selection_start_, selection_end_);
-		const int data_size = dataSize();
+		const qint64 end       = qMax(selection_start_, selection_end_);
+		const qint64 start     = qMin(selection_start_, selection_end_);
+		const qint64 data_size = dataSize();
 
 		// offset now refers to the first visible byte
 		while(offset < end) {
@@ -349,7 +347,7 @@ bool QHexView::hasSelectedText() const {
 //------------------------------------------------------------------------------
 bool QHexView::isInViewableArea(qint64 index) const {
 
-	const qint64 firstViewableWord = verticalScrollBar()->value() * row_width_;
+	const qint64 firstViewableWord = static_cast<quint64>(verticalScrollBar()->value()) * row_width_;
 	const qint64 viewableLines     = viewport()->height() / font_height_;
 	const qint64 viewableWords     = viewableLines * row_width_;
 	const qint64 lastViewableWord  = firstViewableWord + viewableWords;
@@ -377,7 +375,7 @@ void QHexView::keyPressEvent(QKeyEvent *event) {
 		case Qt::Key_Down:
 
 			do {
-				qint64 offset = verticalScrollBar()->value() * bytesPerRow();
+				qint64 offset = static_cast<quint64>(verticalScrollBar()->value()) * bytesPerRow();
 
 				if(origin_ != 0) {
 					if(offset > 0) {
@@ -395,7 +393,7 @@ void QHexView::keyPressEvent(QKeyEvent *event) {
 			return;
 		case Qt::Key_Up:
 			do {
-				qint64 offset = verticalScrollBar()->value() * bytesPerRow();
+				qint64 offset = static_cast<quint64>(verticalScrollBar()->value()) * bytesPerRow();
 
 				if(origin_ != 0) {
 					if(offset > 0) {
@@ -515,7 +513,7 @@ void QHexView::updateScrollbars() {
 // Name: scrollTo
 // Desc: scrolls view to given byte offset
 //------------------------------------------------------------------------------
-void QHexView::scrollTo(quint64 offset) {
+void QHexView::scrollTo(address_t offset) {
 
 	const int bpr = bytesPerRow();
 	origin_ = offset % bpr;
@@ -604,7 +602,7 @@ unsigned int QHexView::bytesPerRow() const {
 // Name: pixelToWord
 //------------------------------------------------------------------------------
 qint64 QHexView::pixelToWord(int x, int y) const {
-	int word = -1;
+	qint64 word = -1;
 
 	switch(highlighting_) {
 	case Highlighting_Data:
@@ -641,8 +639,8 @@ qint64 QHexView::pixelToWord(int x, int y) const {
 	}
 
 	// starting offset in bytes
-	quint64 start_offset = verticalScrollBar()->value() * bytesPerRow();
-
+	quint64 start_offset = static_cast<quint64>(verticalScrollBar()->value()) * bytesPerRow();
+	
 	// take into account the origin
 	if(origin_ != 0) {
 		if(start_offset > 0) {
@@ -845,13 +843,10 @@ void QHexView::drawComments(QPainter &painter, quint64 offset, unsigned int row,
 //------------------------------------------------------------------------------
 void QHexView::drawAsciiDumpToBuffer(QTextStream &stream, quint64 offset, quint64 size, const QByteArray &row_data) const {
 	// i is the byte index
-        const unsigned chars_per_row = bytesPerRow();
-        for(unsigned i = 0; i < chars_per_row; ++i) {
-
-                const quint64 index = offset + i;
-
+	const unsigned chars_per_row = bytesPerRow();
+	for(unsigned i = 0; i < chars_per_row; ++i) {
+		const quint64 index = offset + i;
 		if(index < size) {
-
 			if(isSelected(index)) {
 				const unsigned char ch = row_data[i];
 				const bool printable = is_printable(ch) && ch != '\f' && ch != '\t' && ch != '\r' && ch != '\n' && ch < 0x80;
@@ -877,13 +872,13 @@ void QHexView::drawCommentsToBuffer(QTextStream &stream, quint64 offset, quint64
 }
 
 //------------------------------------------------------------------------------
-// Name: format_bytes
+// Name: formatBytes
 // Desc: formats bytes in a way that's suitable for rendering in a hexdump
 //       having this as a separate function serves two purposes.
 //       #1 no code duplication between the buffer and QPainter versions
 //       #2 this encourages NRVO of the return value more than an integrated
 //------------------------------------------------------------------------------
-QString QHexView::format_bytes(const QByteArray &row_data, int index) const {
+QString QHexView::formatBytes(const QByteArray &row_data, int index) const {
 	union {
 		quint64 q;
 		quint32 d;
@@ -936,16 +931,16 @@ void QHexView::drawHexDumpToBuffer(QTextStream &stream, quint64 offset, quint64 
 	Q_UNUSED(size);
 
 	// i is the word we are currently rendering
-        for(int i = 0; i < row_width_; ++i) {
+	for(int i = 0; i < row_width_; ++i) {
 
 		// index of first byte of current 'word'
-                const quint64 index = offset + (i * word_width_);
+		const quint64 index = offset + (i * word_width_);
 
 		// equal <=, not < because we want to test the END of the word we
 		// about to render, not the start, it's allowed to end at the very last
 		// byte
 		if(index + word_width_ <= size) {
-			const QString byteBuffer = format_bytes(row_data, i * word_width_);
+			const QString byteBuffer = formatBytes(row_data, i * word_width_);
 
 			if(isSelected(index)) {
 				stream << byteBuffer;
@@ -979,7 +974,7 @@ void QHexView::drawHexDump(QPainter &painter, quint64 offset, unsigned int row, 
 		// byte
 		if(index + word_width_ <= size) {
 
-			const QString byteBuffer = format_bytes(row_data, i * word_width_);
+			const QString byteBuffer = formatBytes(row_data, i * word_width_);
 
 			const qreal drawLeft  = hex_dump_left + (i * (charsPerWord() + 1) * font_width_);
 			const qreal drawWidth = charsPerWord() * font_width_;
@@ -1098,7 +1093,7 @@ void QHexView::paintEvent(QPaintEvent *) {
 	const int chars_per_row = bytesPerRow();
 
 	// current actual offset (in bytes)
-        quint64 offset = (quint64)verticalScrollBar()->value() * chars_per_row;
+	quint64 offset = static_cast<quint64>(verticalScrollBar()->value()) * chars_per_row;
 
 	if(origin_ != 0) {
 		if(offset > 0) {
@@ -1292,7 +1287,7 @@ int QHexView::rowWidth() const {
 QHexView::address_t QHexView::firstVisibleAddress() const {
 	// current actual offset (in bytes)
 	const int chars_per_row = bytesPerRow();
-	unsigned int offset = verticalScrollBar()->value() * chars_per_row;
+	quint64 offset = static_cast<quint64>(verticalScrollBar()->value()) * chars_per_row;
 
 	if(origin_ != 0) {
 		if(offset > 0) {
