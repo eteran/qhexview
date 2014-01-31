@@ -17,20 +17,26 @@ The license chosen is at the discretion of the user of this software.
 #define QHEXVIEW_H_
 
 #include <QAbstractScrollArea>
-#include <QByteArray>
 #include <QSharedPointer>
-#include <QString>
 
 class QBuffer;
+class QByteArray;
 class QIODevice;
 class QMenu;
+class QString;
 class QTextStream;
 
 class QHexView : public QAbstractScrollArea {
 	Q_OBJECT
 
 public:
-	typedef quintptr address_t;
+	enum AddressSize {
+		Address32 = 4,
+		Address64 = 8
+	};
+	
+public:
+	typedef quint64 address_t;
 
 	class CommentServerInterface {
 	public:
@@ -82,6 +88,7 @@ public:
 	QColor addressColor() const;
 	int wordWidth() const;
 	int rowWidth() const;
+	AddressSize addressSize() const;
 
 public:
 	QIODevice *data() const { return data_; }
@@ -89,6 +96,7 @@ public:
 	void setData(QIODevice *d);
 	void setAddressOffset(address_t offset);
 	void scrollTo(address_t offset);
+	void setAddressSize(AddressSize address_size);
 
 	address_t selectedBytesAddress() const;
 	quint64 selectedBytesSize() const;
@@ -158,6 +166,8 @@ private:
 		Highlighting_Data,
 		Highlighting_Ascii
 	} highlighting_;
+	
+	AddressSize address_size_;
 };
 
 #endif

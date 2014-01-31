@@ -18,6 +18,7 @@ The license chosen is at the discretion of the user of this software.
 #include <QApplication>
 #include <QBuffer>
 #include <QClipboard>
+#include <QDebug>
 #include <QFontDialog>
 #include <QMenu>
 #include <QMouseEvent>
@@ -28,7 +29,6 @@ The license chosen is at the discretion of the user of this software.
 #include <QSignalMapper>
 #include <QTextStream>
 #include <QtGlobal>
-#include <QDebug>
 
 #include <cctype>
 #include <climits>
@@ -38,17 +38,20 @@ The license chosen is at the discretion of the user of this software.
 namespace {
 	struct show_separator_tag {};
 
-	template <class T, size_t N>
+	template <size_t N>
 	struct address_format {};
 
-	template <class T>
-	struct address_format<T, 4> {
+	template <>
+	struct address_format<4> {
+	
+		template <class T>
 		static QString format_address(T address, const show_separator_tag&) {
 			static char buffer[10];
 			qsnprintf(buffer, sizeof(buffer), "%04x:%04x", (address >> 16) & 0xffff, address & 0xffff);
 			return QString::fromLocal8Bit(buffer);
 		}
 
+		template <class T>
 		static QString format_address(T address) {
 			static char buffer[9];
 			qsnprintf(buffer, sizeof(buffer), "%04x%04x", (address >> 16) & 0xffff, address & 0xffff);
@@ -56,26 +59,23 @@ namespace {
 		}
 	};
 
-	template <class T>
-	struct address_format<T, 8> {
+	template <>
+	struct address_format<8> {
+	
+		template <class T>
 		static QString format_address(T address, const show_separator_tag&) {
 			static char buffer[19];
 			qsnprintf(buffer, sizeof(buffer), "%08x:%08x", (address >> 32) & 0xffffffff, address & 0xffffffff);
 			return QString::fromLocal8Bit(buffer);
 		}
 
+		template <class T>
 		static QString format_address(T address) {
 			static char buffer[18];
 			qsnprintf(buffer, sizeof(buffer), "%08x%08x", (address >> 32) & 0xffffffff, address & 0xffffffff);
 			return QString::fromLocal8Bit(buffer);
 		}
 	};
-
-	template <class T>
-	QString format_address(T address, bool show_separator) {
-		if(show_separator) return address_format<T, sizeof(T)>::format_address(address, show_separator_tag());
-		else               return address_format<T, sizeof(T)>::format_address(address);
-	}
 
 	//------------------------------------------------------------------------------
 	// Name: is_printable
@@ -121,6 +121,12 @@ QHexView::QHexView(QWidget *parent) : QAbstractScrollArea(parent),
 	// default to a simple monospace font
 	setFont(QFont("Monospace", 8));
 
+#if QT_POINTER_SIZE == 4
+	address_size_ = Address32;
+#else
+	address_size_ = Address64;
+#endif
+
 	setShowAddressSeparator(true);
 }
 
@@ -146,7 +152,13 @@ void QHexView::setShowAddressSeparator(bool value) {
 // Desc:
 //------------------------------------------------------------------------------
 QString QHexView::formatAddress(address_t address) {
-	return format_address(address, show_address_separator_);
+	if(address_size_ == Address32) {
+		if(show_address_separator_) return address_format<4>::format_address(address, show_separator_tag());
+		else                        return address_format<4>::format_address(address);
+	} else {
+		if(show_address_separator_) return address_format<8>::format_address(address, show_separator_tag());
+		else                        return address_format<8>::format_address(address);  	 
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -491,7 +503,7 @@ unsigned int QHexView::charsPerWord() const {
 // Desc: returns the lenth in characters the address will take up
 //------------------------------------------------------------------------------
 unsigned int QHexView::addressLen() const {
-	static const unsigned int addressLength = (sizeof(address_t) * CHAR_BIT) / 4;
+	const unsigned int addressLength = (address_size_ * CHAR_BIT) / 4;	
 	return addressLength + (show_address_separator_ ? 1 : 0);
 }
 
@@ -683,6 +695,22 @@ void QHexView::mouseDoubleClickEvent(QMouseEvent *event) {
 			selection_start_ = byte_offset;
 			selection_end_ = selection_start_ + word_width_;
 			repaint();
+		} else if(x < line1()) {
+			highlighting_ = Highlighting_Data;
+
+			const qint64 offset = pixelToWord(line1(), y);
+			qint64 byte_offset = offset * word_width_;
+			if(origin_) {
+				if(origin_ % word_width_) {
+					byte_offset -= word_width_ - (origin_ % word_width_);
+				}
+			}
+			
+			const unsigned chars_per_row = bytesPerRow();
+
+			selection_start_ = byte_offset;
+			selection_end_ = byte_offset + chars_per_row;
+			repaint();
 		}
 	}
 }
@@ -777,6 +805,10 @@ void QHexView::setData(QIODevice *d) {
 		data_ = internal_buffer_;
 	} else {
 		data_ = d;
+	}
+	
+	if(data_->size() > Q_INT64_C(0xffffffff)) {
+		address_size_ = Address64;
 	}
 
 	deselect();
@@ -1297,4 +1329,19 @@ QHexView::address_t QHexView::firstVisibleAddress() const {
 	}
 
 	return offset + addressOffset();
+}
+
+//------------------------------------------------------------------------------
+// Name: setAddressSize
+//------------------------------------------------------------------------------
+void QHexView::setAddressSize(AddressSize address_size) {
+	address_size_ = address_size;
+	repaint();
+}
+
+//------------------------------------------------------------------------------
+// Name: addressSize
+//------------------------------------------------------------------------------
+QHexView::AddressSize QHexView::addressSize() const {
+	return address_size_;
 }
