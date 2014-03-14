@@ -34,6 +34,7 @@ The license chosen is at the discretion of the user of this software.
 #include <climits>
 #include <memory>
 #include <cmath>
+#include <inttypes.h>
 
 namespace {
 	struct show_separator_tag {};
@@ -47,14 +48,20 @@ namespace {
 		template <class T>
 		static QString format_address(T address, const show_separator_tag&) {
 			static char buffer[10];
-			qsnprintf(buffer, sizeof(buffer), "%04llx:%04llx", (address >> 16) & 0xffff, address & 0xffff);
+			const quint16 hi = (address >> 16) & 0xffff;
+			const quint16 lo = (address & 0xffff);
+			
+			qsnprintf(buffer, sizeof(buffer), "%04x:%04x" , hi, lo);
 			return QString::fromLocal8Bit(buffer);
 		}
 
 		template <class T>
 		static QString format_address(T address) {
 			static char buffer[9];
-			qsnprintf(buffer, sizeof(buffer), "%04llx%04llx", (address >> 16) & 0xffff, address & 0xffff);
+			const quint16 hi = (address >> 16) & 0xffff;
+			const quint16 lo = (address & 0xffff);
+			
+			qsnprintf(buffer, sizeof(buffer), "%04x%04x" , hi, lo);
 			return QString::fromLocal8Bit(buffer);
 		}
 	};
@@ -65,14 +72,20 @@ namespace {
 		template <class T>
 		static QString format_address(T address, const show_separator_tag&) {
 			static char buffer[19];
-			qsnprintf(buffer, sizeof(buffer), "%08llx:%08llx", (address >> 32) & 0xffffffff, address & 0xffffffff);
+			const quint32 hi = (address >> 32) & 0xffffffff;
+			const quint32 lo = (address & 0xffffffff);
+			
+			qsnprintf(buffer, sizeof(buffer), "%08x:%08x" , hi, lo);
 			return QString::fromLocal8Bit(buffer);
 		}
 
 		template <class T>
 		static QString format_address(T address) {
 			static char buffer[18];
-			qsnprintf(buffer, sizeof(buffer), "%08llx%08llx", (address >> 32) & 0xffffffff, address & 0xffffffff);
+			const quint32 hi = (address >> 32) & 0xffffffff;
+			const quint32 lo = (address & 0xffffffff);
+			
+			qsnprintf(buffer, sizeof(buffer), "%08x%08x" , hi, lo);
 			return QString::fromLocal8Bit(buffer);
 		}
 	};
