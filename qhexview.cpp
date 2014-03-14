@@ -47,14 +47,14 @@ namespace {
 		template <class T>
 		static QString format_address(T address, const show_separator_tag&) {
 			static char buffer[10];
-			qsnprintf(buffer, sizeof(buffer), "%04x:%04x", (address >> 16) & 0xffff, address & 0xffff);
+			qsnprintf(buffer, sizeof(buffer), "%04llx:%04llx", (address >> 16) & 0xffff, address & 0xffff);
 			return QString::fromLocal8Bit(buffer);
 		}
 
 		template <class T>
 		static QString format_address(T address) {
 			static char buffer[9];
-			qsnprintf(buffer, sizeof(buffer), "%04x%04x", (address >> 16) & 0xffff, address & 0xffff);
+			qsnprintf(buffer, sizeof(buffer), "%04llx%04llx", (address >> 16) & 0xffff, address & 0xffff);
 			return QString::fromLocal8Bit(buffer);
 		}
 	};
@@ -65,14 +65,14 @@ namespace {
 		template <class T>
 		static QString format_address(T address, const show_separator_tag&) {
 			static char buffer[19];
-			qsnprintf(buffer, sizeof(buffer), "%08x:%08x", (address >> 32) & 0xffffffff, address & 0xffffffff);
+			qsnprintf(buffer, sizeof(buffer), "%08llx:%08llx", (address >> 32) & 0xffffffff, address & 0xffffffff);
 			return QString::fromLocal8Bit(buffer);
 		}
 
 		template <class T>
 		static QString format_address(T address) {
 			static char buffer[18];
-			qsnprintf(buffer, sizeof(buffer), "%08x%08x", (address >> 32) & 0xffffffff, address & 0xffffffff);
+			qsnprintf(buffer, sizeof(buffer), "%08llx%08llx", (address >> 32) & 0xffffffff, address & 0xffffffff);
 			return QString::fromLocal8Bit(buffer);
 		}
 	};
