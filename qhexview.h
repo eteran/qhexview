@@ -97,6 +97,7 @@ public:
 	void setAddressOffset(address_t offset);
 	void scrollTo(address_t offset);
 	void setAddressSize(AddressSize address_size);
+	void setColdZoneEnd(address_t offset);
 
 	address_t selectedBytesAddress() const;
 	quint64 selectedBytesSize() const;
@@ -145,6 +146,7 @@ private:
 	QIODevice                      *data_;
 	address_t  					    address_offset_;         // this is the offset that our base address is relative to
 	address_t  					    origin_;
+	address_t                       cold_zone_end_;          // base_address - cold_zone_end_ will be displayed as gray
 	bool       					    show_address_;           // should we show the address display?
 	bool       					    show_ascii_;             // should we show the ascii display?
 	bool       					    show_comments_;

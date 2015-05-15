@@ -125,11 +125,12 @@ namespace {
 QHexView::QHexView(QWidget *parent) : QAbstractScrollArea(parent),
 		internal_buffer_(0), address_color_(Qt::red), even_word_(Qt::blue),
 		non_printable_text_(Qt::red), data_(0), address_offset_(0), origin_(0),
-		show_address_(true), show_ascii_(true), show_comments_(true),
-		show_hex_(true), show_address_separator_(true), show_line1_(true),
-		show_line2_(true), show_line3_(true), unprintable_char_('.'),
-		font_height_(0), row_width_(16), word_width_(1), selection_end_(-1),
-		selection_start_(-1), font_width_(0), highlighting_(Highlighting_None) {
+		cold_zone_end_(0), show_address_(true), show_ascii_(true), 
+		show_comments_(true),show_hex_(true), show_address_separator_(true), 
+		show_line1_(true), show_line2_(true), show_line3_(true), 
+		unprintable_char_('.'), font_height_(0), row_width_(16), word_width_(1),
+		selection_end_(-1), selection_start_(-1), font_width_(0), 
+		highlighting_(Highlighting_None) {
 
 	// default to a simple monospace font
 	setFont(QFont("Monospace", 8));
@@ -1054,6 +1055,11 @@ void QHexView::drawHexDump(QPainter &painter, quint64 offset, unsigned int row, 
 			} else {
 				painter.setPen(QPen((*word_count & 1) ? even_word_ : palette().text().color()));
 			}
+			
+			// implement cold zone stuff
+			if(offset >= address_offset_ && offset < cold_zone_end_) {
+				painter.setPen(QPen(Qt::gray));			
+			}
 
 			painter.drawText(
 				drawLeft,
@@ -1105,6 +1111,11 @@ void QHexView::drawAsciiDump(QPainter &painter, quint64 offset, unsigned int row
 			} else {
 				painter.setPen(QPen(printable ? palette().text().color() : non_printable_text_));
 			}
+			
+			// implement cold zone stuff
+			if(offset >= address_offset_ && offset < cold_zone_end_) {
+				painter.setPen(QPen(Qt::gray));			
+			}			
 
 			const QString byteBuffer(printable ? ch : unprintable_char_);
 
@@ -1163,6 +1174,12 @@ void QHexView::paintEvent(QPaintEvent *) {
 				const address_t address_rva = address_offset_ + offset;
 				const QString addressBuffer = formatAddress(address_rva);
 				painter.setPen(QPen(address_color_));
+				
+				// implement cold zone stuff
+				if(offset >= address_offset_ && offset < cold_zone_end_) {
+					painter.setPen(QPen(Qt::gray));			
+				}				
+				
 				painter.drawText(0, row, addressBuffer.length() * font_width_, font_height_, Qt::AlignTop, addressBuffer);
 			}
 
@@ -1357,4 +1374,11 @@ void QHexView::setAddressSize(AddressSize address_size) {
 //------------------------------------------------------------------------------
 QHexView::AddressSize QHexView::addressSize() const {
 	return address_size_;
+}
+
+//------------------------------------------------------------------------------
+// Name: setColdZoneEnd
+//------------------------------------------------------------------------------
+void QHexView::setColdZoneEnd(address_t offset) {
+	cold_zone_end_ = offset;
 }
