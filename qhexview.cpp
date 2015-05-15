@@ -1057,7 +1057,7 @@ void QHexView::drawHexDump(QPainter &painter, quint64 offset, unsigned int row, 
 			}
 			
 			// implement cold zone stuff			
-			if(offset < cold_zone_end_ - address_offset_) {
+			if(cold_zone_end_ > address_offset_ && offset < cold_zone_end_ - address_offset_) {
 				painter.setPen(QPen(Qt::gray));			
 			}
 
@@ -1113,7 +1113,7 @@ void QHexView::drawAsciiDump(QPainter &painter, quint64 offset, unsigned int row
 			}
 			
 			// implement cold zone stuff
-			if(offset < cold_zone_end_ - address_offset_) {
+			if(cold_zone_end_ > address_offset_ && offset < cold_zone_end_ - address_offset_) {
 				painter.setPen(QPen(Qt::gray));			
 			}			
 
@@ -1176,7 +1176,7 @@ void QHexView::paintEvent(QPaintEvent *) {
 				painter.setPen(QPen(address_color_));
 				
 				// implement cold zone stuff
-				if(offset < cold_zone_end_ - address_offset_) {
+				if(cold_zone_end_ > address_offset_ && offset < cold_zone_end_ - address_offset_) {
 					painter.setPen(QPen(Qt::gray));			
 				}				
 				
