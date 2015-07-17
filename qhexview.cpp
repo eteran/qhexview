@@ -132,15 +132,14 @@ QHexView::QHexView(QWidget *parent) : QAbstractScrollArea(parent),
 		selection_end_(-1), selection_start_(-1), font_width_(0), 
 		highlighting_(Highlighting_None) {
 
-	// default to a simple monospace font
-	setFont(QFont("Monospace", 8));
-
 #if QT_POINTER_SIZE == 4
 	address_size_ = Address32;
 #else
 	address_size_ = Address64;
 #endif
 
+	// default to a simple monospace font
+	setFont(QFont("Monospace", 8));
 	setShowAddressSeparator(true);
 }
 
