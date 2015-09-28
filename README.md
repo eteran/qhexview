@@ -1,4 +1,4 @@
-A Qt widget design to give a nice looking but traditional hex view.
+A Qt widget designed to give a nice looking but traditional hex view.
 
 ![Screenshot](http://codef00.com/img/qhexview.png)
 
