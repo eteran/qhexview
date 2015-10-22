@@ -121,9 +121,9 @@ private:
 	int asciiDumpLeft() const;
 	int commentLeft() const;
 	int hexDumpLeft() const;
-	int line1() const;
-	int line2() const;
-	int line3() const;
+	int vertline1() const;
+	int vertline2() const;
+	int vertline3() const;
 	qint64 dataSize() const;
 	qint64 pixelToWord(int x, int y) const;
 	unsigned int addressLen() const;
@@ -152,9 +152,9 @@ private:
 	bool       					    show_comments_;
 	bool       					    show_hex_;               // should we show the hex display?
 	bool 						    show_address_separator_; // should we show ':' character in address to separate high/low portions
-	bool 						    show_line1_;
-	bool 						    show_line2_;
-	bool 						    show_line3_;
+	bool 						    show_vertline1_;
+	bool 						    show_vertline2_;
+	bool 						    show_vertline3_;
 	char   						    unprintable_char_;
 	int       					    font_height_;            // height of a character in this font
 	int        					    row_width_;              // amount of 'words' per row
