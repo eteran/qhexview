@@ -127,7 +127,7 @@ QHexView::QHexView(QWidget *parent) : QAbstractScrollArea(parent),
 		non_printable_text_(Qt::red), data_(0), address_offset_(0), origin_(0),
 		cold_zone_end_(0), show_address_(true), show_ascii_(true), 
 		show_comments_(true),show_hex_(true), show_address_separator_(true), 
-		show_line1_(true), show_line2_(true), show_line3_(true), 
+		show_vertline1_(true), show_vertline2_(true), show_vertline3_(true), 
 		unprintable_char_('.'), font_height_(0), row_width_(16), word_width_(1),
 		selection_end_(-1), selection_start_(-1), font_width_(0), 
 		highlighting_(Highlighting_None) {
@@ -355,7 +355,7 @@ void QHexView::mnuSetFont() {
 //------------------------------------------------------------------------------
 void QHexView::clear() {
 	data_ = 0;
-	repaint();
+    viewport()->update();
 }
 
 //------------------------------------------------------------------------------
@@ -389,7 +389,7 @@ void QHexView::keyPressEvent(QKeyEvent *event) {
 		switch(event->key()) {
 		case Qt::Key_A:
 			selectAll();
-			repaint();
+            viewport()->update();
 			break;
 		case Qt::Key_Home:
 			scrollTo(0);
@@ -441,36 +441,36 @@ void QHexView::keyPressEvent(QKeyEvent *event) {
 }
 
 //------------------------------------------------------------------------------
-// Name: line3
+// Name: vertline3
 // Desc: returns the x coordinate of the 3rd line
 //------------------------------------------------------------------------------
-int QHexView::line3() const {
+int QHexView::vertline3() const {
 	if(show_ascii_) {
 		const int elements = bytesPerRow();
 		return asciiDumpLeft() + (elements * font_width_) + (font_width_ / 2);
 	} else {
-		return line2();
+		return vertline2();
 	}
 }
 
 //------------------------------------------------------------------------------
-// Name: line2
+// Name: vertline2
 // Desc: returns the x coordinate of the 2nd line
 //------------------------------------------------------------------------------
-int QHexView::line2() const {
+int QHexView::vertline2() const {
 	if(show_hex_) {
 		const int elements = row_width_ * (charsPerWord() + 1) - 1;
 		return hexDumpLeft() + (elements * font_width_) + (font_width_ / 2);
 	} else {
-		return line1();
+		return vertline1();
 	}
 }
 
 //------------------------------------------------------------------------------
-// Name: line1
+// Name: vertline1
 // Desc: returns the x coordinate of the 1st line
 //------------------------------------------------------------------------------
-int QHexView::line1() const {
+int QHexView::vertline1() const {
 	if(show_address_) {
 		const int elements = addressLen();
 		return (elements * font_width_) + (font_width_ / 2);
@@ -484,7 +484,7 @@ int QHexView::line1() const {
 // Desc: returns the x coordinate of the hex-dump field left edge
 //------------------------------------------------------------------------------
 int QHexView::hexDumpLeft() const {
-	return line1() + (font_width_ / 2);
+	return vertline1() + (font_width_ / 2);
 }
 
 //------------------------------------------------------------------------------
@@ -492,7 +492,7 @@ int QHexView::hexDumpLeft() const {
 // Desc: returns the x coordinate of the ascii-dump field left edge
 //------------------------------------------------------------------------------
 int QHexView::asciiDumpLeft() const {
-	return line2() + (font_width_ / 2);
+	return vertline2() + (font_width_ / 2);
 }
 
 //------------------------------------------------------------------------------
@@ -500,7 +500,7 @@ int QHexView::asciiDumpLeft() const {
 // Desc: returns the x coordinate of the comment field left edge
 //------------------------------------------------------------------------------
 int QHexView::commentLeft() const {
-	return line3() + (font_width_ / 2);
+	return vertline3() + (font_width_ / 2);
 }
 
 //------------------------------------------------------------------------------
@@ -531,7 +531,7 @@ void QHexView::updateScrollbars() {
     qint64 maxval = sz / bpr + ((sz % bpr) ? 1 : 0) - viewport()->height() / font_height_;
 
     verticalScrollBar()->setMaximum(qMax((qint64)0, maxval));
-	horizontalScrollBar()->setMaximum(qMax(0, static_cast<int>((line3() - viewport()->width()) / font_width_)));
+	horizontalScrollBar()->setMaximum(qMax(0, static_cast<int>((vertline3() - viewport()->width()) / font_width_)));
 }
 
 //------------------------------------------------------------------------------
@@ -551,7 +551,7 @@ void QHexView::scrollTo(address_t offset) {
 	}
 
 	verticalScrollBar()->setValue(address);
-	repaint();
+    viewport()->update();
 }
 
 //------------------------------------------------------------------------------
@@ -561,7 +561,7 @@ void QHexView::scrollTo(address_t offset) {
 void QHexView::setShowAddress(bool show) {
 	show_address_ = show;
 	updateScrollbars();
-	repaint();
+    viewport()->update();
 }
 
 //------------------------------------------------------------------------------
@@ -571,7 +571,7 @@ void QHexView::setShowAddress(bool show) {
 void QHexView::setShowHexDump(bool show) {
 	show_hex_ = show;
 	updateScrollbars();
-	repaint();
+    viewport()->update();
 }
 
 //------------------------------------------------------------------------------
@@ -581,7 +581,7 @@ void QHexView::setShowHexDump(bool show) {
 void QHexView::setShowComments(bool show) {
 	show_comments_ = show;
 	updateScrollbars();
-	repaint();
+    viewport()->update();
 }
 
 //------------------------------------------------------------------------------
@@ -591,7 +591,7 @@ void QHexView::setShowComments(bool show) {
 void QHexView::setShowAsciiDump(bool show) {
 	show_ascii_ = show;
 	updateScrollbars();
-	repaint();
+    viewport()->update();
 }
 
 //------------------------------------------------------------------------------
@@ -602,7 +602,7 @@ void QHexView::setRowWidth(int rowWidth) {
 	Q_ASSERT(rowWidth >= 0);
 	row_width_ = rowWidth;
 	updateScrollbars();
-	repaint();
+    viewport()->update();
 }
 
 //------------------------------------------------------------------------------
@@ -613,7 +613,7 @@ void QHexView::setWordWidth(int wordWidth) {
 	Q_ASSERT(wordWidth >= 0);
 	word_width_ = wordWidth;
 	updateScrollbars();
-	repaint();
+    viewport()->update();
 }
 
 //------------------------------------------------------------------------------
@@ -633,10 +633,10 @@ qint64 QHexView::pixelToWord(int x, int y) const {
 	case Highlighting_Data:
 		// the right edge of a box is kinda quirky, so we pretend there is one
 		// extra character there
-		x = qBound(line1(), x, static_cast<int>(line2() + font_width_));
+		x = qBound(vertline1(), x, static_cast<int>(vertline2() + font_width_));
 
 		// the selection is in the data view portion
-		x -= line1();
+		x -= vertline1();
 
 		// scale x/y down to character from pixels
 		x = x / font_width_ + (fmod(x, font_width_) >= font_width_ / 2 ? 1 : 0);
@@ -646,7 +646,7 @@ qint64 QHexView::pixelToWord(int x, int y) const {
 		x /= (charsPerWord() + 1);
 		break;
 	case Highlighting_Ascii:
-		x = qBound(asciiDumpLeft(), x, line3());
+		x = qBound(asciiDumpLeft(), x, vertline3());
 
 		// the selection is in the ascii view portion
 		x -= asciiDumpLeft();
@@ -693,7 +693,7 @@ void QHexView::mouseDoubleClickEvent(QMouseEvent *event) {
 	if(event->button() == Qt::LeftButton) {
 		const int x = event->x() + horizontalScrollBar()->value() * font_width_;
 		const int y = event->y();
-		if(x >= line1() && x < line2()) {
+		if(x >= vertline1() && x < vertline2()) {
 
 			highlighting_ = Highlighting_Data;
 
@@ -707,11 +707,11 @@ void QHexView::mouseDoubleClickEvent(QMouseEvent *event) {
 
 			selection_start_ = byte_offset;
 			selection_end_ = selection_start_ + word_width_;
-			repaint();
-		} else if(x < line1()) {
+            viewport()->update();
+		} else if(x < vertline1()) {
 			highlighting_ = Highlighting_Data;
 
-			const qint64 offset = pixelToWord(line1(), y);
+			const qint64 offset = pixelToWord(vertline1(), y);
 			qint64 byte_offset = offset * word_width_;
 			if(origin_) {
 				if(origin_ % word_width_) {
@@ -723,7 +723,7 @@ void QHexView::mouseDoubleClickEvent(QMouseEvent *event) {
 
 			selection_start_ = byte_offset;
 			selection_end_ = byte_offset + chars_per_row;
-			repaint();
+            viewport()->update();
 		}
 	}
 }
@@ -732,13 +732,14 @@ void QHexView::mouseDoubleClickEvent(QMouseEvent *event) {
 // Name: mousePressEvent
 //------------------------------------------------------------------------------
 void QHexView::mousePressEvent(QMouseEvent *event) {
+    qDebug() << "[QHexView::mousePressEvent] ***";
 	if(event->button() == Qt::LeftButton) {
 		const int x = event->x() + horizontalScrollBar()->value() * font_width_;
 		const int y = event->y();
 
-		if(x < line2()) {
+		if(x < vertline2()) {
 			highlighting_ = Highlighting_Data;
-		} else if(x >= line2()) {
+		} else if(x >= vertline2()) {
 			highlighting_ = Highlighting_Ascii;
 		}
 
@@ -755,7 +756,10 @@ void QHexView::mousePressEvent(QMouseEvent *event) {
 		} else {
 			selection_start_ = selection_end_ = -1;
 		}
-		repaint();
+        viewport()->update();
+	}
+	if (event->button() == Qt::RightButton) {
+
 	}
 }
 
@@ -794,7 +798,7 @@ void QHexView::mouseMoveEvent(QMouseEvent *event) {
 			}
 
 		}
-		repaint();
+		viewport()->update();
 	}
 }
 
@@ -826,7 +830,7 @@ void QHexView::setData(QIODevice *d) {
 
 	deselect();
 	updateScrollbars();
-	repaint();
+    viewport()->update();
 }
 
 //------------------------------------------------------------------------------
@@ -1135,8 +1139,8 @@ void QHexView::drawAsciiDump(QPainter &painter, quint64 offset, unsigned int row
 //------------------------------------------------------------------------------
 // Name: paintEvent
 //------------------------------------------------------------------------------
-void QHexView::paintEvent(QPaintEvent *) {
-
+void QHexView::paintEvent(QPaintEvent * event) {
+    //qDebug() << "[QHexView::paintEvent] ***";
 	QPainter painter(viewport());
 	painter.translate(-horizontalScrollBar()->value() * font_width_, 0);
 
@@ -1201,19 +1205,19 @@ void QHexView::paintEvent(QPaintEvent *) {
 
 	painter.setPen(QPen(palette().shadow().color()));
 
-	if(show_address_ && show_line1_) {
-		const int line1_x = line1();
-		painter.drawLine(line1_x, 0, line1_x, widget_height);
+	if(show_address_ && show_vertline1_) {
+		const int vertline1_x = vertline1();
+		painter.drawLine(vertline1_x, 0, vertline1_x, widget_height);
 	}
 
-	if(show_hex_ && show_line2_) {
-		const int line2_x = line2();
-		painter.drawLine(line2_x, 0, line2_x, widget_height);
+	if(show_hex_ && show_vertline2_) {
+		const int vertline2_x = vertline2();
+		painter.drawLine(vertline2_x, 0, vertline2_x, widget_height);
 	}
 
-	if(show_ascii_ && show_line3_) {
-		const int line3_x = line3();
-		painter.drawLine(line3_x, 0, line3_x, widget_height);
+	if(show_ascii_ && show_vertline3_) {
+		const int vertline3_x = vertline3();
+		painter.drawLine(vertline3_x, 0, vertline3_x, widget_height);
 	}
 }
 
@@ -1365,7 +1369,7 @@ QHexView::address_t QHexView::firstVisibleAddress() const {
 //------------------------------------------------------------------------------
 void QHexView::setAddressSize(AddressSize address_size) {
 	address_size_ = address_size;
-	repaint();
+    viewport()->update();
 }
 
 //------------------------------------------------------------------------------
