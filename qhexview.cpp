@@ -1140,6 +1140,8 @@ void QHexView::drawAsciiDump(QPainter &painter, quint64 offset, unsigned int row
 // Name: paintEvent
 //------------------------------------------------------------------------------
 void QHexView::paintEvent(QPaintEvent * event) {
+
+	Q_UNUSED(event);
     //qDebug() << "[QHexView::paintEvent] ***";
 	QPainter painter(viewport());
 	painter.translate(-horizontalScrollBar()->value() * font_width_, 0);
