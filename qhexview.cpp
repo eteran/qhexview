@@ -37,85 +37,34 @@ The license chosen is at the discretion of the user of this software.
 #include <inttypes.h>
 
 namespace {
-	struct show_separator_tag {};
 
-	template <size_t N>
-	struct address_format {};
+//------------------------------------------------------------------------------
+// Name: is_printable
+// Desc: determines if a character has a printable ascii symbol
+//------------------------------------------------------------------------------
+bool is_printable(unsigned char ch) {
 
-	template <>
-	struct address_format<4> {
-	
-		template <class T>
-		static QString format_address(T address, const show_separator_tag&) {
-			static char buffer[10];
-			const quint16 hi = (address >> 16) & 0xffff;
-			const quint16 lo = (address & 0xffff);
-			
-			qsnprintf(buffer, sizeof(buffer), "%04x:%04x" , hi, lo);
-			return QString::fromLocal8Bit(buffer);
-		}
-
-		template <class T>
-		static QString format_address(T address) {
-			static char buffer[9];
-			const quint16 hi = (address >> 16) & 0xffff;
-			const quint16 lo = (address & 0xffff);
-			
-			qsnprintf(buffer, sizeof(buffer), "%04x%04x" , hi, lo);
-			return QString::fromLocal8Bit(buffer);
-		}
-	};
-
-	template <>
-	struct address_format<8> {
-	
-		template <class T>
-		static QString format_address(T address, const show_separator_tag&) {
-			static char buffer[19];
-			const quint32 hi = (address >> 32) & 0xffffffff;
-			const quint32 lo = (address & 0xffffffff);
-			
-			qsnprintf(buffer, sizeof(buffer), "%08x:%08x" , hi, lo);
-			return QString::fromLocal8Bit(buffer);
-		}
-
-		template <class T>
-		static QString format_address(T address) {
-			static char buffer[18];
-			const quint32 hi = (address >> 32) & 0xffffffff;
-			const quint32 lo = (address & 0xffffffff);
-			
-			qsnprintf(buffer, sizeof(buffer), "%08x%08x" , hi, lo);
-			return QString::fromLocal8Bit(buffer);
-		}
-	};
-
-	//------------------------------------------------------------------------------
-	// Name: is_printable
-	// Desc: determines if a character has a printable ascii symbol
-	//------------------------------------------------------------------------------
-	bool is_printable(unsigned char ch) {
-
-		// if it's standard ascii use isprint/isspace, otherwise go with our observations
-		if(ch < 0x80) {
-			return std::isprint(ch) || std::isspace(ch);
-		} else {
-			return (ch & 0xff) >= 0xa0;
-		}
+	// if it's standard ascii use isprint/isspace, otherwise go with our observations
+	if(ch < 0x80) {
+		return std::isprint(ch) || std::isspace(ch);
+	} else {
+		return (ch & 0xff) >= 0xa0;
 	}
+}
 
-	//------------------------------------------------------------------------------
-	// Name: add_toggle_action_to_menu
-	// Desc: convenience function used to add a checkable menu item to the context menu
-	//------------------------------------------------------------------------------
-	QAction *add_toggle_action_to_menu(QMenu *menu, const QString &caption, bool checked, QObject *receiver, const char *slot) {
-		QAction *const action = new QAction(caption, menu);
-		action->setCheckable(true);
-		action->setChecked(checked);
-		menu->addAction(action);
-		QObject::connect(action, SIGNAL(toggled(bool)), receiver, slot);
-		return action;
-	}
+//------------------------------------------------------------------------------
+// Name: add_toggle_action_to_menu
+// Desc: convenience function used to add a checkable menu item to the context menu
+//------------------------------------------------------------------------------
+QAction *add_toggle_action_to_menu(QMenu *menu, const QString &caption, bool checked, QObject *receiver, const char *slot) {
+	QAction *const action = new QAction(caption, menu);
+	action->setCheckable(true);
+	action->setChecked(checked);
+	menu->addAction(action);
+	QObject::connect(action, SIGNAL(toggled(bool)), receiver, slot);
+	return action;
+}
+
 }
 
 //------------------------------------------------------------------------------
@@ -125,11 +74,11 @@ namespace {
 QHexView::QHexView(QWidget *parent) : QAbstractScrollArea(parent),
 		internal_buffer_(0), address_color_(Qt::red), even_word_(Qt::blue),
 		non_printable_text_(Qt::red), data_(0), address_offset_(0), origin_(0),
-		cold_zone_end_(0), show_address_(true), show_ascii_(true), 
-		show_comments_(true),show_hex_(true), show_address_separator_(true), 
-		show_vertline1_(true), show_vertline2_(true), show_vertline3_(true), 
+		cold_zone_end_(0), show_address_(true), show_ascii_(true),
+		show_comments_(true),show_hex_(true), show_address_separator_(true),
+		show_vertline1_(true), show_vertline2_(true), show_vertline3_(true),
 		unprintable_char_('.'), font_height_(0), row_width_(16), word_width_(1),
-		selection_end_(-1), selection_start_(-1), font_width_(0), 
+		selection_end_(-1), selection_start_(-1), font_width_(0),
 		highlighting_(Highlighting_None) {
 
 #if QT_POINTER_SIZE == 4
@@ -165,13 +114,38 @@ void QHexView::setShowAddressSeparator(bool value) {
 // Desc:
 //------------------------------------------------------------------------------
 QString QHexView::formatAddress(address_t address) {
-	if(address_size_ == Address32) {
-		if(show_address_separator_) return address_format<4>::format_address(address, show_separator_tag());
-		else                        return address_format<4>::format_address(address);
-	} else {
-		if(show_address_separator_) return address_format<8>::format_address(address, show_separator_tag());
-		else                        return address_format<8>::format_address(address);  	 
+
+	static char buffer[32];
+
+	switch(address_size_) {
+	case Address32:
+		{
+			const quint16 hi = (address >> 16) & 0xffff;
+			const quint16 lo = (address & 0xffff);
+
+			if(show_address_separator_) {
+				qsnprintf(buffer, sizeof(buffer), "%04x:%04x" , hi, lo);
+			} else {
+				qsnprintf(buffer, sizeof(buffer), "%04x%04x" , hi, lo);
+			}
+		}
+		return QString::fromLocal8Bit(buffer);
+	case Address64:
+		{
+			const quint32 hi = (address >> 32) & 0xffffffff;
+			const quint32 lo = (address & 0xffffffff);
+
+			if(show_address_separator_) {
+				qsnprintf(buffer, sizeof(buffer), "%08x:%08x" , hi, lo);
+			} else {
+				qsnprintf(buffer, sizeof(buffer), "%08x%08x" , hi, lo);
+
+			}
+		}
+		return QString::fromLocal8Bit(buffer);
 	}
+
+	return QString();
 }
 
 //------------------------------------------------------------------------------
@@ -276,6 +250,24 @@ void QHexView::contextMenuEvent(QContextMenuEvent *event) {
 }
 
 //------------------------------------------------------------------------------
+// Name: normalizedOffset
+// Desc:
+//------------------------------------------------------------------------------
+qint64 QHexView::normalizedOffset() const {
+
+	qint64 offset = static_cast<qint64>(verticalScrollBar()->value()) * bytesPerRow();
+
+	if(origin_ != 0) {
+		if(offset > 0) {
+			offset += origin_;
+			offset -= bytesPerRow();
+		}
+	}
+
+	return offset;
+}
+
+//------------------------------------------------------------------------------
 // Name: mnuCopy
 // Desc:
 //------------------------------------------------------------------------------
@@ -288,14 +280,7 @@ void QHexView::mnuCopy() {
 		// current actual offset (in bytes)
 
 		const int chars_per_row = bytesPerRow();
-		qint64 offset = static_cast<quint64>(verticalScrollBar()->value()) * chars_per_row;
-
-		if(origin_ != 0) {
-			if(offset > 0) {
-				offset += origin_;
-				offset -= chars_per_row;
-			}
-		}
+		qint64 offset = normalizedOffset();
 
 		const qint64 end       = qMax(selection_start_, selection_end_);
 		const qint64 start     = qMin(selection_start_, selection_end_);
@@ -372,7 +357,7 @@ bool QHexView::hasSelectedText() const {
 //------------------------------------------------------------------------------
 bool QHexView::isInViewableArea(qint64 index) const {
 
-	const qint64 firstViewableWord = static_cast<quint64>(verticalScrollBar()->value()) * row_width_;
+	const qint64 firstViewableWord = static_cast<qint64>(verticalScrollBar()->value()) * row_width_;
 	const qint64 viewableLines     = viewport()->height() / font_height_;
 	const qint64 viewableWords     = viewableLines * row_width_;
 	const qint64 lastViewableWord  = firstViewableWord + viewableWords;
@@ -400,15 +385,7 @@ void QHexView::keyPressEvent(QKeyEvent *event) {
 		case Qt::Key_Down:
 
 			do {
-				qint64 offset = static_cast<quint64>(verticalScrollBar()->value()) * bytesPerRow();
-
-				if(origin_ != 0) {
-					if(offset > 0) {
-						offset += origin_;
-						offset -= bytesPerRow();
-					}
-				}
-
+				qint64 offset = normalizedOffset();
 				if(offset + 1 < dataSize()) {
 					scrollTo(offset + 1);
 				}
@@ -418,15 +395,7 @@ void QHexView::keyPressEvent(QKeyEvent *event) {
 			return;
 		case Qt::Key_Up:
 			do {
-				qint64 offset = static_cast<quint64>(verticalScrollBar()->value()) * bytesPerRow();
-
-				if(origin_ != 0) {
-					if(offset > 0) {
-						offset += origin_;
-						offset -= bytesPerRow();
-					}
-				}
-
+				qint64 offset = normalizedOffset();
 				if(offset > 0) {
 					scrollTo(offset - 1);
 				}
@@ -516,7 +485,7 @@ unsigned int QHexView::charsPerWord() const {
 // Desc: returns the lenth in characters the address will take up
 //------------------------------------------------------------------------------
 unsigned int QHexView::addressLen() const {
-	const unsigned int addressLength = (address_size_ * CHAR_BIT) / 4;	
+	const unsigned int addressLength = (address_size_ * CHAR_BIT) / 4;
 	return addressLength + (show_address_separator_ ? 1 : 0);
 }
 
@@ -664,15 +633,7 @@ qint64 QHexView::pixelToWord(int x, int y) const {
 	}
 
 	// starting offset in bytes
-	quint64 start_offset = static_cast<quint64>(verticalScrollBar()->value()) * bytesPerRow();
-	
-	// take into account the origin
-	if(origin_ != 0) {
-		if(start_offset > 0) {
-			start_offset += origin_;
-			start_offset -= bytesPerRow();
-		}
-	}
+	qint64 start_offset = normalizedOffset();
 
 	// convert byte offset to word offset, rounding up
 	start_offset /= static_cast<unsigned int>(word_width_);
@@ -718,7 +679,7 @@ void QHexView::mouseDoubleClickEvent(QMouseEvent *event) {
 					byte_offset -= word_width_ - (origin_ % word_width_);
 				}
 			}
-			
+
 			const unsigned chars_per_row = bytesPerRow();
 
 			selection_start_ = byte_offset;
@@ -732,7 +693,7 @@ void QHexView::mouseDoubleClickEvent(QMouseEvent *event) {
 // Name: mousePressEvent
 //------------------------------------------------------------------------------
 void QHexView::mousePressEvent(QMouseEvent *event) {
-    qDebug() << "[QHexView::mousePressEvent] ***";
+
 	if(event->button() == Qt::LeftButton) {
 		const int x = event->x() + horizontalScrollBar()->value() * font_width_;
 		const int y = event->y();
@@ -823,7 +784,7 @@ void QHexView::setData(QIODevice *d) {
 	} else {
 		data_ = d;
 	}
-	
+
 	if(data_->size() > Q_INT64_C(0xffffffff)) {
 		address_size_ = Address64;
 	}
@@ -1058,10 +1019,10 @@ void QHexView::drawHexDump(QPainter &painter, quint64 offset, unsigned int row, 
 			} else {
 				painter.setPen(QPen((*word_count & 1) ? even_word_ : palette().text().color()));
 			}
-			
-			// implement cold zone stuff			
+
+			// implement cold zone stuff
 			if(cold_zone_end_ > address_offset_ && offset < cold_zone_end_ - address_offset_) {
-				painter.setPen(QPen(Qt::gray));			
+				painter.setPen(QPen(Qt::gray));
 			}
 
 			painter.drawText(
@@ -1114,11 +1075,11 @@ void QHexView::drawAsciiDump(QPainter &painter, quint64 offset, unsigned int row
 			} else {
 				painter.setPen(QPen(printable ? palette().text().color() : non_printable_text_));
 			}
-			
+
 			// implement cold zone stuff
 			if(cold_zone_end_ > address_offset_ && offset < cold_zone_end_ - address_offset_) {
-				painter.setPen(QPen(Qt::gray));			
-			}			
+				painter.setPen(QPen(Qt::gray));
+			}
 
 			const QString byteBuffer(printable ? ch : unprintable_char_);
 
@@ -1142,7 +1103,6 @@ void QHexView::drawAsciiDump(QPainter &painter, quint64 offset, unsigned int row
 void QHexView::paintEvent(QPaintEvent * event) {
 
 	Q_UNUSED(event);
-    //qDebug() << "[QHexView::paintEvent] ***";
 	QPainter painter(viewport());
 	painter.translate(-horizontalScrollBar()->value() * font_width_, 0);
 
@@ -1153,8 +1113,9 @@ void QHexView::paintEvent(QPaintEvent * event) {
 
 	const int chars_per_row = bytesPerRow();
 
-	// current actual offset (in bytes)
-	quint64 offset = static_cast<quint64>(verticalScrollBar()->value()) * chars_per_row;
+	// current actual offset (in bytes), we do this manually because we have the else
+	// case unlike the helper function
+	qint64 offset = static_cast<qint64>(verticalScrollBar()->value()) * chars_per_row;
 
 	if(origin_ != 0) {
 		if(offset > 0) {
@@ -1166,7 +1127,7 @@ void QHexView::paintEvent(QPaintEvent * event) {
 		}
 	}
 
-	const quint64 data_size          = static_cast<quint64>(dataSize());
+	const qint64 data_size           = dataSize();
 	const unsigned int widget_height = static_cast<unsigned int>(height());
 
 	while(row + font_height_ < widget_height && offset < data_size) {
@@ -1179,12 +1140,12 @@ void QHexView::paintEvent(QPaintEvent * event) {
 				const address_t address_rva = address_offset_ + offset;
 				const QString addressBuffer = formatAddress(address_rva);
 				painter.setPen(QPen(address_color_));
-				
+
 				// implement cold zone stuff
-				if(cold_zone_end_ > address_offset_ && offset < cold_zone_end_ - address_offset_) {
-					painter.setPen(QPen(Qt::gray));			
-				}				
-				
+				if(cold_zone_end_ > address_offset_ && static_cast<address_t>(offset) < cold_zone_end_ - address_offset_) {
+					painter.setPen(QPen(Qt::gray));
+				}
+
 				painter.drawText(0, row, addressBuffer.length() * font_width_, font_height_, Qt::AlignTop, addressBuffer);
 			}
 
@@ -1353,16 +1314,7 @@ int QHexView::rowWidth() const {
 //------------------------------------------------------------------------------
 QHexView::address_t QHexView::firstVisibleAddress() const {
 	// current actual offset (in bytes)
-	const int chars_per_row = bytesPerRow();
-	quint64 offset = static_cast<quint64>(verticalScrollBar()->value()) * chars_per_row;
-
-	if(origin_ != 0) {
-		if(offset > 0) {
-			offset += origin_;
-			offset -= chars_per_row;
-		}
-	}
-
+	qint64 offset = normalizedOffset();
 	return offset + addressOffset();
 }
 

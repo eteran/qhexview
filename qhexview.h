@@ -136,6 +136,7 @@ private:
 	void drawHexDump(QPainter &painter, quint64 offset, unsigned int row, quint64 size, int *word_count, const QByteArray &row_data) const;
 	void drawHexDumpToBuffer(QTextStream &stream, quint64 offset, quint64 size, const QByteArray &row_data) const;
 	void updateScrollbars();
+	qint64 normalizedOffset() const;
 
 private:
 	CommentServerInterface::pointer comment_server_;
