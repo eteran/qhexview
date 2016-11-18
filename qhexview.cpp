@@ -607,8 +607,10 @@ qint64 QHexView::pixelToWord(int x, int y) const {
 
 	switch(highlighting_) {
 	case Highlighting_Data:
-        // Make pixels outside the word correspond to the nearest word, not to the right-hand one
-        x -= font_width_/2;
+#if 0
+		// Make pixels outside the word correspond to the nearest word, not to the right-hand one
+		x -= font_width_ / 2;
+#endif
 		// the right edge of a box is kinda quirky, so we pretend there is one
 		// extra character there
 		x = qBound(vertline1(), x, static_cast<int>(vertline2() + font_width_));
