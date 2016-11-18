@@ -1018,12 +1018,14 @@ void QHexView::drawHexDump(QPainter &painter, quint64 offset, unsigned int row, 
 				painter.setPen(QPen(palette().highlightedText().color()));
 			} else {
 				painter.setPen(QPen((*word_count & 1) ? even_word_ : palette().text().color()));
+                
+			    // implement cold zone stuff
+			    if(cold_zone_end_ > address_offset_ && offset < cold_zone_end_ - address_offset_) {
+				    painter.setPen(QPen(Qt::gray));
+			    }
 			}
 
-			// implement cold zone stuff
-			if(cold_zone_end_ > address_offset_ && offset < cold_zone_end_ - address_offset_) {
-				painter.setPen(QPen(Qt::gray));
-			}
+
 
 			painter.drawText(
 				drawLeft,
@@ -1074,11 +1076,11 @@ void QHexView::drawAsciiDump(QPainter &painter, quint64 offset, unsigned int row
 
 			} else {
 				painter.setPen(QPen(printable ? palette().text().color() : non_printable_text_));
-			}
-
-			// implement cold zone stuff
-			if(cold_zone_end_ > address_offset_ && offset < cold_zone_end_ - address_offset_) {
-				painter.setPen(QPen(Qt::gray));
+                
+			    // implement cold zone stuff
+			    if(cold_zone_end_ > address_offset_ && offset < cold_zone_end_ - address_offset_) {
+				    painter.setPen(QPen(Qt::gray));
+			    }
 			}
 
 			const QString byteBuffer(printable ? ch : unprintable_char_);
