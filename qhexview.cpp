@@ -74,7 +74,8 @@ QAction *add_toggle_action_to_menu(QMenu *menu, const QString &caption, bool che
 QHexView::QHexView(QWidget *parent) : QAbstractScrollArea(parent),
 		internal_buffer_(0), address_color_(Qt::red), even_word_(Qt::blue),
 		non_printable_text_(Qt::red), data_(0), address_offset_(0), origin_(0),
-		cold_zone_end_(0), show_address_(true), show_ascii_(true),
+		cold_zone_end_(0), user_can_set_word_width_(true), 
+		user_can_set_row_width_(true), show_address_(true), show_ascii_(true), 
 		show_comments_(true),show_hex_(true), show_address_separator_(true),
 		show_vertline1_(true), show_vertline2_(true), show_vertline3_(true),
 		unprintable_char_('.'), font_height_(0), row_width_(16), word_width_(1),
@@ -197,41 +198,47 @@ QMenu *QHexView::createStandardContextMenu() {
 	add_toggle_action_to_menu(menu, tr("Show &Ascii"), show_ascii_, this, SLOT(setShowAsciiDump(bool)));
 	add_toggle_action_to_menu(menu, tr("Show &Comments"), show_comments_, this, SLOT(setShowComments(bool)));
 
-	QSignalMapper *wordWidthMapper = new QSignalMapper(menu);
+	if(user_can_set_word_width_ || user_can_set_row_width_) {
+		menu->addSeparator();
+	}
 
-	QMenu *const wordMenu = new QMenu(tr("Set Word Width"), menu);
-	QAction *const a1 = add_toggle_action_to_menu(wordMenu, tr("1 Byte"), word_width_ == 1, wordWidthMapper, SLOT(map()));
-	QAction *const a2 = add_toggle_action_to_menu(wordMenu, tr("2 Bytes"), word_width_ == 2, wordWidthMapper, SLOT(map()));
-	QAction *const a3 = add_toggle_action_to_menu(wordMenu, tr("4 Bytes"), word_width_ == 4, wordWidthMapper, SLOT(map()));
-	QAction *const a4 = add_toggle_action_to_menu(wordMenu, tr("8 Bytes"), word_width_ == 8, wordWidthMapper, SLOT(map()));
+	if(user_can_set_word_width_) {
+		QSignalMapper *wordWidthMapper = new QSignalMapper(menu);
 
-	wordWidthMapper->setMapping(a1, 1);
-	wordWidthMapper->setMapping(a2, 2);
-	wordWidthMapper->setMapping(a3, 4);
-	wordWidthMapper->setMapping(a4, 8);
+		QMenu *const wordMenu = new QMenu(tr("Set Word Width"), menu);
+		QAction *const a1 = add_toggle_action_to_menu(wordMenu, tr("1 Byte"), word_width_ == 1, wordWidthMapper, SLOT(map()));
+		QAction *const a2 = add_toggle_action_to_menu(wordMenu, tr("2 Bytes"), word_width_ == 2, wordWidthMapper, SLOT(map()));
+		QAction *const a3 = add_toggle_action_to_menu(wordMenu, tr("4 Bytes"), word_width_ == 4, wordWidthMapper, SLOT(map()));
+		QAction *const a4 = add_toggle_action_to_menu(wordMenu, tr("8 Bytes"), word_width_ == 8, wordWidthMapper, SLOT(map()));
 
-	connect(wordWidthMapper, SIGNAL(mapped(int)), SLOT(setWordWidth(int)));
+		wordWidthMapper->setMapping(a1, 1);
+		wordWidthMapper->setMapping(a2, 2);
+		wordWidthMapper->setMapping(a3, 4);
+		wordWidthMapper->setMapping(a4, 8);
 
-	QSignalMapper *rowWidthMapper = new QSignalMapper(menu);
+		connect(wordWidthMapper, SIGNAL(mapped(int)), SLOT(setWordWidth(int)));
+		menu->addMenu(wordMenu);
+	}
 
-	QMenu *const rowMenu = new QMenu(tr("Set Row Width"), menu);
-	QAction *const a5 = add_toggle_action_to_menu(rowMenu, tr("1 Word"), row_width_ == 1, rowWidthMapper, SLOT(map()));
-	QAction *const a6 = add_toggle_action_to_menu(rowMenu, tr("2 Words"), row_width_ == 2, rowWidthMapper, SLOT(map()));
-	QAction *const a7 = add_toggle_action_to_menu(rowMenu, tr("4 Words"), row_width_ == 4, rowWidthMapper, SLOT(map()));
-	QAction *const a8 = add_toggle_action_to_menu(rowMenu, tr("8 Words"), row_width_ == 8, rowWidthMapper, SLOT(map()));
-	QAction *const a9 = add_toggle_action_to_menu(rowMenu, tr("16 Words"), row_width_ == 16, rowWidthMapper, SLOT(map()));
+	if(user_can_set_row_width_) {
+		QSignalMapper *rowWidthMapper = new QSignalMapper(menu);
 
-	rowWidthMapper->setMapping(a5, 1);
-	rowWidthMapper->setMapping(a6, 2);
-	rowWidthMapper->setMapping(a7, 4);
-	rowWidthMapper->setMapping(a8, 8);
-	rowWidthMapper->setMapping(a9, 16);
+		QMenu *const rowMenu = new QMenu(tr("Set Row Width"), menu);
+		QAction *const a5 = add_toggle_action_to_menu(rowMenu, tr("1 Word"), row_width_ == 1, rowWidthMapper, SLOT(map()));
+		QAction *const a6 = add_toggle_action_to_menu(rowMenu, tr("2 Words"), row_width_ == 2, rowWidthMapper, SLOT(map()));
+		QAction *const a7 = add_toggle_action_to_menu(rowMenu, tr("4 Words"), row_width_ == 4, rowWidthMapper, SLOT(map()));
+		QAction *const a8 = add_toggle_action_to_menu(rowMenu, tr("8 Words"), row_width_ == 8, rowWidthMapper, SLOT(map()));
+		QAction *const a9 = add_toggle_action_to_menu(rowMenu, tr("16 Words"), row_width_ == 16, rowWidthMapper, SLOT(map()));
 
-	connect(rowWidthMapper, SIGNAL(mapped(int)), SLOT(setRowWidth(int)));
+		rowWidthMapper->setMapping(a5, 1);
+		rowWidthMapper->setMapping(a6, 2);
+		rowWidthMapper->setMapping(a7, 4);
+		rowWidthMapper->setMapping(a8, 8);
+		rowWidthMapper->setMapping(a9, 16);
 
-	menu->addSeparator();
-	menu->addMenu(wordMenu);
-	menu->addMenu(rowMenu);
+		connect(rowWidthMapper, SIGNAL(mapped(int)), SLOT(setRowWidth(int)));
+		menu->addMenu(rowMenu);
+	}
 
 	menu->addSeparator();
 	menu->addAction(tr("&Copy Selection To Clipboard"), this, SLOT(mnuCopy()));
@@ -331,7 +338,7 @@ void QHexView::mnuCopy() {
 // Desc: slot used to set the font of the widget based on dialog selector
 //------------------------------------------------------------------------------
 void QHexView::mnuSetFont() {
-    setFont(QFontDialog::getFont(0, font(), this));
+	setFont(QFontDialog::getFont(0, font(), this));
 }
 
 //------------------------------------------------------------------------------
@@ -340,7 +347,7 @@ void QHexView::mnuSetFont() {
 //------------------------------------------------------------------------------
 void QHexView::clear() {
 	data_ = 0;
-    viewport()->update();
+	viewport()->update();
 }
 
 //------------------------------------------------------------------------------
@@ -374,7 +381,7 @@ void QHexView::keyPressEvent(QKeyEvent *event) {
 		switch(event->key()) {
 		case Qt::Key_A:
 			selectAll();
-            viewport()->update();
+			viewport()->update();
 			break;
 		case Qt::Key_Home:
 			scrollTo(0);
@@ -494,12 +501,12 @@ unsigned int QHexView::addressLen() const {
 // Desc: recalculates scrollbar maximum value base on lines total and lines viewable
 //------------------------------------------------------------------------------
 void QHexView::updateScrollbars() {
-    const qint64 sz = dataSize();
-    const int bpr = bytesPerRow();
+	const qint64 sz = dataSize();
+	const int bpr = bytesPerRow();
 
-    qint64 maxval = sz / bpr + ((sz % bpr) ? 1 : 0) - viewport()->height() / font_height_;
+	qint64 maxval = sz / bpr + ((sz % bpr) ? 1 : 0) - viewport()->height() / font_height_;
 
-    verticalScrollBar()->setMaximum(qMax((qint64)0, maxval));
+	verticalScrollBar()->setMaximum(qMax((qint64)0, maxval));
 	horizontalScrollBar()->setMaximum(qMax(0, static_cast<int>((vertline3() - viewport()->width()) / font_width_)));
 }
 
@@ -520,7 +527,7 @@ void QHexView::scrollTo(address_t offset) {
 	}
 
 	verticalScrollBar()->setValue(address);
-    viewport()->update();
+	viewport()->update();
 }
 
 //------------------------------------------------------------------------------
@@ -530,7 +537,7 @@ void QHexView::scrollTo(address_t offset) {
 void QHexView::setShowAddress(bool show) {
 	show_address_ = show;
 	updateScrollbars();
-    viewport()->update();
+	viewport()->update();
 }
 
 //------------------------------------------------------------------------------
@@ -540,7 +547,7 @@ void QHexView::setShowAddress(bool show) {
 void QHexView::setShowHexDump(bool show) {
 	show_hex_ = show;
 	updateScrollbars();
-    viewport()->update();
+	viewport()->update();
 }
 
 //------------------------------------------------------------------------------
@@ -550,7 +557,7 @@ void QHexView::setShowHexDump(bool show) {
 void QHexView::setShowComments(bool show) {
 	show_comments_ = show;
 	updateScrollbars();
-    viewport()->update();
+	viewport()->update();
 }
 
 //------------------------------------------------------------------------------
@@ -560,7 +567,7 @@ void QHexView::setShowComments(bool show) {
 void QHexView::setShowAsciiDump(bool show) {
 	show_ascii_ = show;
 	updateScrollbars();
-    viewport()->update();
+	viewport()->update();
 }
 
 //------------------------------------------------------------------------------
@@ -571,7 +578,7 @@ void QHexView::setRowWidth(int rowWidth) {
 	Q_ASSERT(rowWidth >= 0);
 	row_width_ = rowWidth;
 	updateScrollbars();
-    viewport()->update();
+	viewport()->update();
 }
 
 //------------------------------------------------------------------------------
@@ -582,7 +589,7 @@ void QHexView::setWordWidth(int wordWidth) {
 	Q_ASSERT(wordWidth >= 0);
 	word_width_ = wordWidth;
 	updateScrollbars();
-    viewport()->update();
+	viewport()->update();
 }
 
 //------------------------------------------------------------------------------
@@ -668,7 +675,7 @@ void QHexView::mouseDoubleClickEvent(QMouseEvent *event) {
 
 			selection_start_ = byte_offset;
 			selection_end_ = selection_start_ + word_width_;
-            viewport()->update();
+			viewport()->update();
 		} else if(x < vertline1()) {
 			highlighting_ = Highlighting_Data;
 
@@ -684,7 +691,7 @@ void QHexView::mouseDoubleClickEvent(QMouseEvent *event) {
 
 			selection_start_ = byte_offset;
 			selection_end_ = byte_offset + chars_per_row;
-            viewport()->update();
+			viewport()->update();
 		}
 	}
 }
@@ -717,7 +724,7 @@ void QHexView::mousePressEvent(QMouseEvent *event) {
 		} else {
 			selection_start_ = selection_end_ = -1;
 		}
-        viewport()->update();
+		viewport()->update();
 	}
 	if (event->button() == Qt::RightButton) {
 
@@ -791,7 +798,7 @@ void QHexView::setData(QIODevice *d) {
 
 	deselect();
 	updateScrollbars();
-    viewport()->update();
+	viewport()->update();
 }
 
 //------------------------------------------------------------------------------
@@ -1018,11 +1025,11 @@ void QHexView::drawHexDump(QPainter &painter, quint64 offset, unsigned int row, 
 				painter.setPen(QPen(palette().highlightedText().color()));
 			} else {
 				painter.setPen(QPen((*word_count & 1) ? even_word_ : palette().text().color()));
-                
-			    // implement cold zone stuff
-			    if(cold_zone_end_ > address_offset_ && offset < cold_zone_end_ - address_offset_) {
-				    painter.setPen(QPen(Qt::gray));
-			    }
+
+				// implement cold zone stuff
+				if(cold_zone_end_ > address_offset_ && offset < cold_zone_end_ - address_offset_) {
+					painter.setPen(QPen(Qt::gray));
+				}
 			}
 
 
@@ -1050,10 +1057,10 @@ void QHexView::drawAsciiDump(QPainter &painter, quint64 offset, unsigned int row
 	const int ascii_dump_left = asciiDumpLeft();
 
 	// i is the byte index
-        const unsigned chars_per_row = bytesPerRow();
-        for(unsigned i = 0; i < chars_per_row; ++i) {
+	const unsigned chars_per_row = bytesPerRow();
+	for(unsigned i = 0; i < chars_per_row; ++i) {
 
-                const quint64 index = offset + i;
+		const quint64 index = offset + i;
 
 		if(index < size) {
 			const char ch        = row_data[i];
@@ -1063,24 +1070,24 @@ void QHexView::drawAsciiDump(QPainter &painter, quint64 offset, unsigned int row
 			// drawing a selected character
 			if(isSelected(index)) {
 
-				painter.fillRect(
-					QRectF(
-						drawLeft,
-						row,
-						font_width_,
-						font_height_),
+			painter.fillRect(
+				QRectF(
+					drawLeft,
+					row,
+					font_width_,
+					font_height_),
 					palette().highlight()
-					);
+				);
 
-				painter.setPen(QPen(palette().highlightedText().color()));
+			painter.setPen(QPen(palette().highlightedText().color()));
 
 			} else {
 				painter.setPen(QPen(printable ? palette().text().color() : non_printable_text_));
-                
-			    // implement cold zone stuff
-			    if(cold_zone_end_ > address_offset_ && offset < cold_zone_end_ - address_offset_) {
-				    painter.setPen(QPen(Qt::gray));
-			    }
+
+				// implement cold zone stuff
+				if(cold_zone_end_ > address_offset_ && offset < cold_zone_end_ - address_offset_) {
+					painter.setPen(QPen(Qt::gray));
+				}
 			}
 
 			const QString byteBuffer(printable ? ch : unprintable_char_);
@@ -1092,7 +1099,7 @@ void QHexView::drawAsciiDump(QPainter &painter, quint64 offset, unsigned int row
 				font_height_,
 				Qt::AlignTop,
 				byteBuffer
-				);
+			);
 		} else {
 			break;
 		}
@@ -1325,7 +1332,7 @@ QHexView::address_t QHexView::firstVisibleAddress() const {
 //------------------------------------------------------------------------------
 void QHexView::setAddressSize(AddressSize address_size) {
 	address_size_ = address_size;
-    viewport()->update();
+	viewport()->update();
 }
 
 //------------------------------------------------------------------------------
@@ -1340,4 +1347,34 @@ QHexView::AddressSize QHexView::addressSize() const {
 //------------------------------------------------------------------------------
 void QHexView::setColdZoneEnd(address_t offset) {
 	cold_zone_end_ = offset;
+}
+
+//------------------------------------------------------------------------------
+// Name: userConfigWordWidth
+//------------------------------------------------------------------------------
+bool QHexView::userConfigWordWidth() const {
+	return user_can_set_word_width_;
+}
+
+//------------------------------------------------------------------------------
+// Name: userConfigRowWidth
+//------------------------------------------------------------------------------
+bool QHexView::userConfigRowWidth() const {
+	return user_can_set_row_width_;
+}
+
+//------------------------------------------------------------------------------
+// Name: setUserConfigWordWidth
+//------------------------------------------------------------------------------
+void QHexView::setUserConfigWordWidth(bool value) {
+	user_can_set_word_width_ = value;
+	viewport()->update();
+}
+
+//------------------------------------------------------------------------------
+// Name: setUserConfigRowWidth
+//------------------------------------------------------------------------------
+void QHexView::setUserConfigRowWidth(bool value) {
+	user_can_set_row_width_ = value;
+	viewport()->update();
 }

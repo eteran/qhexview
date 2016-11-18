@@ -67,6 +67,8 @@ protected:
 	virtual void contextMenuEvent(QContextMenuEvent *event);
 
 public Q_SLOTS:
+	void setUserConfigWordWidth(bool);
+	void setUserConfigRowWidth(bool);
 	void setShowAddress(bool);
 	void setShowAsciiDump(bool);
 	void setShowHexDump(bool);
@@ -80,6 +82,8 @@ public Q_SLOTS:
 public:
 	address_t firstVisibleAddress() const;
 	address_t addressOffset() const;
+	bool userConfigWordWidth() const;
+	bool userConfigRowWidth() const;
 	bool showHexDump() const;
 	bool showAddress() const;
 	bool showAsciiDump() const;
@@ -140,29 +144,31 @@ private:
 
 private:
 	CommentServerInterface::pointer comment_server_;
-	QBuffer                        *internal_buffer_;
+	QBuffer                         *internal_buffer_;
 	QColor                          address_color_;          // color of the address in display
 	QColor                          even_word_;
 	QColor                          non_printable_text_;
-	QIODevice                      *data_;
-	address_t  					    address_offset_;         // this is the offset that our base address is relative to
-	address_t  					    origin_;
+	QIODevice                       *data_;
+	address_t                       address_offset_;         // this is the offset that our base address is relative to
+	address_t                       origin_;
 	address_t                       cold_zone_end_;          // base_address - cold_zone_end_ will be displayed as gray
-	bool       					    show_address_;           // should we show the address display?
-	bool       					    show_ascii_;             // should we show the ascii display?
-	bool       					    show_comments_;
-	bool       					    show_hex_;               // should we show the hex display?
-	bool 						    show_address_separator_; // should we show ':' character in address to separate high/low portions
-	bool 						    show_vertline1_;
-	bool 						    show_vertline2_;
-	bool 						    show_vertline3_;
-	char   						    unprintable_char_;
-	int       					    font_height_;            // height of a character in this font
-	int        					    row_width_;              // amount of 'words' per row
-	int       					    word_width_;             // size of a 'word' in bytes
-	qint64    					    selection_end_;          // index of last selected word (or -1)
-	qint64    					    selection_start_;        // index of first selected word (or -1)
-	qreal    					    font_width_;             // width of a character in this font
+	bool                            user_can_set_word_width_;
+	bool                            user_can_set_row_width_;
+	bool                            show_address_;           // should we show the address display?
+	bool                            show_ascii_;             // should we show the ascii display?
+	bool                            show_comments_;
+	bool                            show_hex_;               // should we show the hex display?
+	bool                            show_address_separator_; // should we show ':' character in address to separate high/low portions
+	bool                            show_vertline1_;
+	bool                            show_vertline2_;
+	bool                            show_vertline3_;
+	char                            unprintable_char_;
+	int                             font_height_;            // height of a character in this font
+	int                             row_width_;              // amount of 'words' per row
+	int                             word_width_;             // size of a 'word' in bytes
+	qint64                          selection_end_;          // index of last selected word (or -1)
+	qint64                          selection_start_;        // index of first selected word (or -1)
+	qreal                           font_width_;             // width of a character in this font
 	
 	enum {
 		Highlighting_None,
