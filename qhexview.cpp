@@ -724,7 +724,8 @@ void QHexView::mousePressEvent(QMouseEvent *event) {
 		}
 
 		if(offset < dataSize()) {
-			selection_start_ = selection_end_ = byte_offset;
+			selection_start_ = byte_offset;
+			selection_end_ = selection_start_ + word_width_;
 		} else {
 			selection_start_ = selection_end_ = -1;
 		}
@@ -747,7 +748,7 @@ void QHexView::mouseMoveEvent(QMouseEvent *event) {
 
 		if(selection_start_ != -1) {
 			if(offset == -1) {
-				selection_end_ = (row_width_ - selection_start_) + selection_start_;
+				selection_end_ = row_width_;
 			} else {
 
 				qint64 byte_offset = (offset * word_width_);
@@ -759,6 +760,9 @@ void QHexView::mouseMoveEvent(QMouseEvent *event) {
 
 				}
 				selection_end_ = byte_offset;
+				if (selection_end_ == selection_start_) {
+					selection_end_ += word_width_;
+				}
 			}
 
 			if(selection_end_ < 0) {
