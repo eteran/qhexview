@@ -848,7 +848,7 @@ void QHexView::drawComments(QPainter &painter, quint64 offset, unsigned int row,
 
 	Q_UNUSED(size);
 
-	painter.setPen(QPen(palette().color(QPalette::Text)));
+	painter.setPen(palette().color(QPalette::Text));
 
 	const address_t address = address_offset_ + offset;
 	const QString comment   = comment_server_->comment(address, word_width_);
@@ -1032,17 +1032,15 @@ void QHexView::drawHexDump(QPainter &painter, quint64 offset, unsigned int row, 
 					}
 				}
 
-				painter.setPen(QPen(palette().highlightedText().color()));
+				painter.setPen(palette().color(group, QPalette::HighlightedText));
 			} else {
-				painter.setPen(QPen((*word_count & 1) ? even_word_ : palette().text().color()));
+				painter.setPen(QPen((*word_count & 1) ? even_word_ : palette().color(QPalette::Text)));
 
 				// implement cold zone stuff
 				if(cold_zone_end_ > address_offset_ && offset < cold_zone_end_ - address_offset_) {
 					painter.setPen(QPen(Qt::gray));
 				}
 			}
-
-
 
 			painter.drawText(
 				drawLeft,
@@ -1088,13 +1086,13 @@ void QHexView::drawAsciiDump(QPainter &painter, quint64 offset, unsigned int row
 						row,
 						font_width_,
 						font_height_),
-						palette().color(group, QPalette::Highlight)
-					);
+					palette().color(group, QPalette::Highlight)
+				);
 	
-				painter.setPen(QPen(palette().highlightedText().color()));
+				painter.setPen(palette().color(group, QPalette::HighlightedText));
 
 			} else {
-				painter.setPen(QPen(printable ? palette().text().color() : non_printable_text_));
+				painter.setPen(QPen(printable ? palette().color(QPalette::Text) : non_printable_text_));
 
 				// implement cold zone stuff
 				if(cold_zone_end_ > address_offset_ && offset < cold_zone_end_ - address_offset_) {
@@ -1187,7 +1185,7 @@ void QHexView::paintEvent(QPaintEvent * event) {
 		row += font_height_;
 	}
 
-	painter.setPen(QPen(palette().shadow().color()));
+	painter.setPen(palette().color(QPalette::Shadow));
 
 	if(show_address_ && show_vertline1_) {
 		const int vertline1_x = vertline1();
