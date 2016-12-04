@@ -844,7 +844,7 @@ void QHexView::drawComments(QPainter &painter, quint64 offset, unsigned int row,
 
 	Q_UNUSED(size);
 
-	painter.setPen(QPen(palette().text().color()));
+	painter.setPen(QPen(palette().color(QPalette::Text)));
 
 	const address_t address = address_offset_ + offset;
 	const QString comment   = comment_server_->comment(address, word_width_);
@@ -1001,6 +1001,8 @@ void QHexView::drawHexDump(QPainter &painter, quint64 offset, unsigned int row, 
 			const qreal drawWidth = charsPerWord() * font_width_;
 
 			if(isSelected(index)) {
+			
+				const QPalette::ColorGroup group = hasFocus() ? QPalette::Active : QPalette::Inactive;
 
 				painter.fillRect(
 					QRectF(
@@ -1008,7 +1010,7 @@ void QHexView::drawHexDump(QPainter &painter, quint64 offset, unsigned int row, 
 						row,
 						drawWidth,
 						font_height_),
-					palette().highlight()
+					palette().color(group, QPalette::Highlight)
 					);
 
 				// should be highlight the space between us and the next word?
@@ -1020,7 +1022,7 @@ void QHexView::drawHexDump(QPainter &painter, quint64 offset, unsigned int row, 
 								row,
 								font_width_,
 								font_height_),
-							palette().highlight()
+							palette().color(group, QPalette::Highlight)
 							);
 
 					}
@@ -1073,17 +1075,19 @@ void QHexView::drawAsciiDump(QPainter &painter, quint64 offset, unsigned int row
 
 			// drawing a selected character
 			if(isSelected(index)) {
+			
+				const QPalette::ColorGroup group = hasFocus() ? QPalette::Active : QPalette::Inactive;
 
-			painter.fillRect(
-				QRectF(
-					drawLeft,
-					row,
-					font_width_,
-					font_height_),
-					palette().highlight()
-				);
-
-			painter.setPen(QPen(palette().highlightedText().color()));
+				painter.fillRect(
+					QRectF(
+						drawLeft,
+						row,
+						font_width_,
+						font_height_),
+						palette().color(group, QPalette::Highlight)
+					);
+	
+				painter.setPen(QPen(palette().highlightedText().color()));
 
 			} else {
 				painter.setPen(QPen(printable ? palette().text().color() : non_printable_text_));
