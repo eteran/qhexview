@@ -711,7 +711,7 @@ void QHexView::mousePressEvent(QMouseEvent *event) {
 
 		if(x < vertline2()) {
 			highlighting_ = Highlighting_Data;
-		} else if(x >= vertline2()) {
+		} else {
 			highlighting_ = Highlighting_Ascii;
 		}
 
