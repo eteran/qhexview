@@ -759,6 +759,7 @@ void QHexView::mouseReleaseEvent(QMouseEvent *event) {
 // Name: ensureVisible
 //------------------------------------------------------------------------------
 void QHexView::ensureVisible(int64_t index) {
+#if 0
 	if(index < normalizedOffset()) {
 		while(index < normalizedOffset()) {
 			verticalScrollBar()->setValue(verticalScrollBar()->value() - 1);
@@ -770,6 +771,7 @@ void QHexView::ensureVisible(int64_t index) {
 		}
 		viewport()->update();
 	}
+#endif
 }
 
 //------------------------------------------------------------------------------
