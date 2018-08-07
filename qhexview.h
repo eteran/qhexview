@@ -17,9 +17,10 @@ The license chosen is at the discretion of the user of this software.
 #define QHEXVIEW_H_
 
 #include <QAbstractScrollArea>
-#include <QSharedPointer>
+#include <QBuffer>
+#include <memory>
+#include <cstdint>
 
-class QBuffer;
 class QByteArray;
 class QIODevice;
 class QMenu;
@@ -36,11 +37,11 @@ public:
 	};
 	
 public:
-	typedef quint64 address_t;
+	using address_t = uint64_t;
 
 	class CommentServerInterface {
 	public:
-		typedef QSharedPointer<CommentServerInterface> pointer;
+		typedef std::shared_ptr<CommentServerInterface> pointer;
 	public:
 		virtual ~CommentServerInterface() {}
 	public:
@@ -51,20 +52,20 @@ public:
 
 public:
 	QHexView(QWidget *parent = 0);
-	virtual ~QHexView();
+	~QHexView() override = default;
 
 	CommentServerInterface::pointer commentServer() const;
 	void setCommentServer(const CommentServerInterface::pointer &p);
 
 protected:
-	virtual void paintEvent(QPaintEvent *event);
-	virtual void resizeEvent(QResizeEvent *event);
-	virtual void mousePressEvent(QMouseEvent *event);
-	virtual void mouseMoveEvent(QMouseEvent *event);
-	virtual void mouseReleaseEvent(QMouseEvent *event);
-	virtual void keyPressEvent(QKeyEvent *event);
-	virtual void mouseDoubleClickEvent(QMouseEvent *event);
-	virtual void contextMenuEvent(QContextMenuEvent *event);
+	void paintEvent(QPaintEvent *event) override;
+	void resizeEvent(QResizeEvent *event) override;
+	void mousePressEvent(QMouseEvent *event) override;
+	void mouseMoveEvent(QMouseEvent *event) override;
+	void mouseReleaseEvent(QMouseEvent *event) override;
+	void keyPressEvent(QKeyEvent *event) override;
+	void mouseDoubleClickEvent(QMouseEvent *event) override;
+	void contextMenuEvent(QContextMenuEvent *event) override;
 
 public Q_SLOTS:
 	void setUserConfigWordWidth(bool);
@@ -104,7 +105,7 @@ public:
 	void setColdZoneEnd(address_t offset);
 
 	address_t selectedBytesAddress() const;
-	quint64 selectedBytesSize() const;
+	uint64_t selectedBytesSize() const;
 	QByteArray selectedBytes() const;
 	QByteArray allBytes() const;
 	QMenu *createStandardContextMenu();
@@ -120,61 +121,62 @@ public Q_SLOTS:
 private:
 	QString formatAddress(address_t address);
 	QString formatBytes(const QByteArray &row_data, int index) const;
-	bool isInViewableArea(qint64 index) const;
-	bool isSelected(qint64 index) const;
+	bool isInViewableArea(int64_t index) const;
+	bool isSelected(int64_t index) const;
 	int asciiDumpLeft() const;
 	int commentLeft() const;
 	int hexDumpLeft() const;
 	int vertline1() const;
 	int vertline2() const;
 	int vertline3() const;
-	qint64 dataSize() const;
-	qint64 pixelToWord(int x, int y) const;
+	int64_t dataSize() const;
+	int64_t normalizedOffset() const;
+	int64_t pixelToWord(int x, int y) const;
 	unsigned int addressLen() const;
 	unsigned int bytesPerRow() const;
 	unsigned int charsPerWord() const;
-	void drawAsciiDump(QPainter &painter, quint64 offset, unsigned int row, quint64 size, const QByteArray &row_data) const;
-	void drawAsciiDumpToBuffer(QTextStream &stream, quint64 offset, quint64 size, const QByteArray &row_data) const;
-	void drawComments(QPainter &painter, quint64 offset, unsigned int row, quint64 size) const;
-	void drawCommentsToBuffer(QTextStream &stream, quint64 offset, quint64 size) const;
-	void drawHexDump(QPainter &painter, quint64 offset, unsigned int row, quint64 size, int *word_count, const QByteArray &row_data) const;
-	void drawHexDumpToBuffer(QTextStream &stream, quint64 offset, quint64 size, const QByteArray &row_data) const;
+	void drawAsciiDump(QPainter &painter, uint64_t offset, unsigned int row, uint64_t size, const QByteArray &row_data) const;
+	void drawAsciiDumpToBuffer(QTextStream &stream, uint64_t offset, uint64_t size, const QByteArray &row_data) const;
+	void drawComments(QPainter &painter, uint64_t offset, unsigned int row, uint64_t size) const;
+	void drawCommentsToBuffer(QTextStream &stream, uint64_t offset, uint64_t size) const;
+	void drawHexDump(QPainter &painter, uint64_t offset, unsigned int row, uint64_t size, int *word_count, const QByteArray &row_data) const;
+	void drawHexDumpToBuffer(QTextStream &stream, uint64_t offset, uint64_t size, const QByteArray &row_data) const;
+	void ensureVisible(int64_t index);
 	void updateScrollbars();
-	qint64 normalizedOffset() const;
 
 private:
 	CommentServerInterface::pointer comment_server_;
-	QBuffer                         *internal_buffer_;
-	QColor                          address_color_;          // color of the address in display
-	QColor                          even_word_;
-	QColor                          non_printable_text_;
-	QIODevice                       *data_;
-	address_t                       address_offset_;         // this is the offset that our base address is relative to
-	address_t                       origin_;
-	address_t                       cold_zone_end_;          // base_address - cold_zone_end_ will be displayed as gray
-	bool                            user_can_set_word_width_;
-	bool                            user_can_set_row_width_;
-	bool                            show_address_;           // should we show the address display?
-	bool                            show_ascii_;             // should we show the ascii display?
-	bool                            show_comments_;
-	bool                            show_hex_;               // should we show the hex display?
-	bool                            show_address_separator_; // should we show ':' character in address to separate high/low portions
-	bool                            show_vertline1_;
-	bool                            show_vertline2_;
-	bool                            show_vertline3_;
-	char                            unprintable_char_;
-	int                             font_height_;            // height of a character in this font
-	int                             row_width_;              // amount of 'words' per row
-	int                             word_width_;             // size of a 'word' in bytes
-	qint64                          selection_end_;          // index of last selected word (or -1)
-	qint64                          selection_start_;        // index of first selected word (or -1)
-	qreal                           font_width_;             // width of a character in this font
+	std::unique_ptr<QBuffer>        internal_buffer_;
+	QColor                          address_color_           = Qt::red; // color of the address in display
+	QColor                          even_word_               = Qt::blue;
+	QColor                          non_printable_text_      = Qt::red;
+	QIODevice                       *data_                   = nullptr;
+	address_t                       address_offset_          = 0;       // this is the offset that our base address is relative to
+	address_t                       origin_                  = 0;
+	address_t                       cold_zone_end_           = 0;       // base_address - cold_zone_end_ will be displayed as gray
+	bool                            user_can_set_word_width_ = true;
+	bool                            user_can_set_row_width_  = true;
+	bool                            show_address_            = true;    // should we show the address display?
+	bool                            show_ascii_              = true;    // should we show the ascii display?
+	bool                            show_comments_           = true;
+	bool                            show_hex_                = true;    // should we show the hex display?
+	bool                            show_address_separator_  = true;    // should we show ':' character in address to separate high/low portions
+	bool                            show_vertline1_          = true;
+	bool                            show_vertline2_          = true;
+	bool                            show_vertline3_          = true;
+	char                            unprintable_char_        = '.';
+	int                             font_height_             = 0;       // height of a character in this font
+	int                             row_width_               = 16;      // amount of 'words' per row
+	int                             word_width_              = 1;       // size of a 'word' in bytes
+	int64_t                         selection_end_           = -1;      // index of last selected word (or -1)
+	int64_t                         selection_start_         = -1;      // index of first selected word (or -1)
+	qreal                           font_width_              = 0;       // width of a character in this font
 	
 	enum {
 		Highlighting_None,
 		Highlighting_Data,
 		Highlighting_Ascii
-	} highlighting_;
+	} highlighting_ = Highlighting_None;
 	
 	AddressSize address_size_;
 };
