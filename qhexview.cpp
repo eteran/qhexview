@@ -156,13 +156,13 @@ void QHexView::setFont(const QFont &f) {
 	font.setStyleStrategy(QFont::ForceIntegerMetrics);
 
 	// recalculate all of our metrics/offsets
-	const QFontMetricsF fm(font);
+	const QFontMetrics fm(font);
 	font_width_  = fm.width('X');
 	font_height_ = fm.height();
 
 	updateScrollbars();
 
-	// TODO: assert that we are using a fixed font & find out if we care?
+	// TODO(eteran): assert that we are using a fixed font & find out if we care?
 	QAbstractScrollArea::setFont(font);
 }
 
@@ -300,7 +300,7 @@ void QHexView::mnuCopy() {
 						ss << "|";
 					}
 
-					if(show_comments_ && comment_server_) {
+					if(show_comments_ && commentServer_) {
 						drawCommentsToBuffer(ss, offset, data_size);
 					}
 				}
@@ -451,7 +451,7 @@ int QHexView::commentLeft() const {
 // Name: charsPerWord
 // Desc: returns how many characters each word takes up
 //------------------------------------------------------------------------------
-unsigned int QHexView::charsPerWord() const {
+int QHexView::charsPerWord() const {
 	return word_width_ * 2;
 }
 
@@ -459,8 +459,8 @@ unsigned int QHexView::charsPerWord() const {
 // Name: addressLen
 // Desc: returns the lenth in characters the address will take up
 //------------------------------------------------------------------------------
-unsigned int QHexView::addressLen() const {
-	const unsigned int addressLength = (address_size_ * CHAR_BIT) / 4;
+int QHexView::addressLen() const {
+	const int addressLength = (address_size_ * CHAR_BIT) / 4;
 	return addressLength + (show_address_separator_ ? 1 : 0);
 }
 
@@ -472,10 +472,10 @@ void QHexView::updateScrollbars() {
 	const int64_t sz = dataSize();
 	const int bpr = bytesPerRow();
 
-	int64_t maxval = sz / bpr + ((sz % bpr) ? 1 : 0) - viewport()->height() / font_height_;
+	const int maxval = sz / bpr + ((sz % bpr) ? 1 : 0) - viewport()->height() / font_height_;
 
-	verticalScrollBar()->setMaximum(std::max((int64_t)0, maxval));
-	horizontalScrollBar()->setMaximum(std::max(0, static_cast<int>((vertline3() - viewport()->width()) / font_width_)));
+	verticalScrollBar()->setMaximum(std::max(0, maxval));
+	horizontalScrollBar()->setMaximum(std::max(0, ((vertline3() - viewport()->width()) / font_width_)));
 }
 
 //------------------------------------------------------------------------------
@@ -563,7 +563,7 @@ void QHexView::setWordWidth(int wordWidth) {
 //------------------------------------------------------------------------------
 // Name: bytesPerRow
 //------------------------------------------------------------------------------
-unsigned int QHexView::bytesPerRow() const {
+int QHexView::bytesPerRow() const {
 	return row_width_ * word_width_;
 }
 
@@ -759,6 +759,7 @@ void QHexView::mouseReleaseEvent(QMouseEvent *event) {
 // Name: ensureVisible
 //------------------------------------------------------------------------------
 void QHexView::ensureVisible(int64_t index) {
+	Q_UNUSED(index);
 #if 0
 	if(index < normalizedOffset()) {
 		while(index < normalizedOffset()) {
@@ -816,7 +817,7 @@ void QHexView::setAddressOffset(address_t offset) {
 bool QHexView::isSelected(int64_t index) const {
 
 	bool ret = false;
-	if(index < static_cast<int64_t>(dataSize())) {
+	if(index < dataSize()) {
 		if(selection_start_ != selection_end_) {
 			if(selection_start_ < selection_end_) {
 				ret = (index >= selection_start_ && index < selection_end_);
@@ -831,14 +832,14 @@ bool QHexView::isSelected(int64_t index) const {
 //------------------------------------------------------------------------------
 // Name: drawComments
 //------------------------------------------------------------------------------
-void QHexView::drawComments(QPainter &painter, uint64_t offset, unsigned int row, uint64_t size) const {
+void QHexView::drawComments(QPainter &painter, uint64_t offset, int row, uint64_t size) const {
 
 	Q_UNUSED(size);
 
 	painter.setPen(palette().color(QPalette::Text));
 
 	const address_t address = address_offset_ + offset;
-	const QString comment   = comment_server_->comment(address, word_width_);
+	const QString comment   = commentServer_->comment(address, word_width_);
 
 	painter.drawText(
 		commentLeft(),
@@ -855,8 +856,8 @@ void QHexView::drawComments(QPainter &painter, uint64_t offset, unsigned int row
 //------------------------------------------------------------------------------
 void QHexView::drawAsciiDumpToBuffer(QTextStream &stream, uint64_t offset, uint64_t size, const QByteArray &row_data) const {
 	// i is the byte index
-	const unsigned chars_per_row = bytesPerRow();
-	for(unsigned i = 0; i < chars_per_row; ++i) {
+	const int chars_per_row = bytesPerRow();
+	for(int i = 0; i < chars_per_row; ++i) {
 		const uint64_t index = offset + i;
 		if(index < size) {
 			if(isSelected(index)) {
@@ -879,7 +880,7 @@ void QHexView::drawAsciiDumpToBuffer(QTextStream &stream, uint64_t offset, uint6
 void QHexView::drawCommentsToBuffer(QTextStream &stream, uint64_t offset, uint64_t size) const {
 	Q_UNUSED(size);
 	const address_t address = address_offset_ + offset;
-	const QString comment   = comment_server_->comment(address, word_width_);
+	const QString comment   = commentServer_->comment(address, word_width_);
 	stream << comment;
 }
 
@@ -972,7 +973,7 @@ void QHexView::drawHexDumpToBuffer(QTextStream &stream, uint64_t offset, uint64_
 //------------------------------------------------------------------------------
 // Name: drawHexDump
 //------------------------------------------------------------------------------
-void QHexView::drawHexDump(QPainter &painter, uint64_t offset, unsigned int row, uint64_t size, int *word_count, const QByteArray &row_data) const {
+void QHexView::drawHexDump(QPainter &painter, uint64_t offset, int row, uint64_t size, int *word_count, const QByteArray &row_data) const {
 	const int hex_dump_left = hexDumpLeft();
 
 	// i is the word we are currently rendering
@@ -1048,12 +1049,12 @@ void QHexView::drawHexDump(QPainter &painter, uint64_t offset, unsigned int row,
 //------------------------------------------------------------------------------
 // Name: drawAsciiDump
 //------------------------------------------------------------------------------
-void QHexView::drawAsciiDump(QPainter &painter, uint64_t offset, unsigned int row, uint64_t size, const QByteArray &row_data) const {
+void QHexView::drawAsciiDump(QPainter &painter, uint64_t offset, int row, uint64_t size, const QByteArray &row_data) const {
 	const int ascii_dump_left = asciiDumpLeft();
 
 	// i is the byte index
-	const unsigned chars_per_row = bytesPerRow();
-	for(unsigned i = 0; i < chars_per_row; ++i) {
+	const int chars_per_row = bytesPerRow();
+	for(int i = 0; i < chars_per_row; ++i) {
 
 		const uint64_t index = offset + i;
 
@@ -1115,7 +1116,7 @@ void QHexView::paintEvent(QPaintEvent * event) {
 	int word_count = 0;
 
 	// pixel offset of this row
-	unsigned int row = 0;
+	int row = 0;
 
 	const int chars_per_row = bytesPerRow();
 
@@ -1133,8 +1134,8 @@ void QHexView::paintEvent(QPaintEvent * event) {
 		}
 	}
 
-	const int64_t data_size           = dataSize();
-	const unsigned int widget_height = static_cast<unsigned int>(height());
+	const int64_t data_size = dataSize();
+	const int widget_height = height();
 
 	while(row + font_height_ < widget_height && offset < data_size) {
 
@@ -1163,7 +1164,7 @@ void QHexView::paintEvent(QPaintEvent * event) {
 				drawAsciiDump(painter, offset, row, data_size, row_data);
 			}
 
-			if(show_comments_ && comment_server_) {
+			if(show_comments_ && commentServer_) {
 				drawComments(painter, offset, row, data_size);
 			}
 		}
@@ -1257,20 +1258,6 @@ uint64_t QHexView::selectedBytesSize() const {
 //------------------------------------------------------------------------------
 QHexView::address_t QHexView::addressOffset() const {
 	return address_offset_;
-}
-
-//------------------------------------------------------------------------------
-// Name: setCommentServer
-//------------------------------------------------------------------------------
-void QHexView::setCommentServer(const CommentServerInterface::pointer &p) {
-	comment_server_ = p;
-}
-
-//------------------------------------------------------------------------------
-// Name: commentServer
-//------------------------------------------------------------------------------
-QHexView::CommentServerInterface::pointer QHexView::commentServer() const {
-	return comment_server_;
 }
 
 //------------------------------------------------------------------------------

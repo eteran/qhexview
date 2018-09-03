@@ -39,23 +39,36 @@ public:
 public:
 	using address_t = uint64_t;
 
-	class CommentServerInterface {
+private:
+	class CommentServerBase {
 	public:
-		typedef std::shared_ptr<CommentServerInterface> pointer;
-	public:
-		virtual ~CommentServerInterface() {}
-	public:
-		virtual void set_comment(address_t address, const QString &comment) = 0;
+		virtual ~CommentServerBase() = default;
 		virtual QString comment(address_t address, int size) const = 0;
-		virtual void clear() = 0;
+	};
+
+	template <class T>
+	class CommentServerWrapper : public CommentServerBase {
+	public:
+		CommentServerWrapper(const T *commentServer) : commentServer_(commentServer) {
+		}
+
+		QString comment(address_t address, int size) const override {
+			return commentServer_->comment(address, size);
+		}
+	private:
+		const T *commentServer_;
 	};
 
 public:
-	QHexView(QWidget *parent = 0);
+	QHexView(QWidget *parent = nullptr);
 	~QHexView() override = default;
 
-	CommentServerInterface::pointer commentServer() const;
-	void setCommentServer(const CommentServerInterface::pointer &p);
+public:
+	// We use type erasure to accept ANY type which has a QString comment(const edb::address_t &) method
+	template <class T>
+	void setCommentServer(T *p) {
+		commentServer_ = std::make_unique<CommentServerWrapper<T>>(p);
+	}
 
 protected:
 	void paintEvent(QPaintEvent *event) override;
@@ -132,45 +145,46 @@ private:
 	int64_t dataSize() const;
 	int64_t normalizedOffset() const;
 	int64_t pixelToWord(int x, int y) const;
-	unsigned int addressLen() const;
-	unsigned int bytesPerRow() const;
-	unsigned int charsPerWord() const;
-	void drawAsciiDump(QPainter &painter, uint64_t offset, unsigned int row, uint64_t size, const QByteArray &row_data) const;
+	int addressLen() const;
+	int bytesPerRow() const;
+	int charsPerWord() const;
+	void drawAsciiDump(QPainter &painter, uint64_t offset, int row, uint64_t size, const QByteArray &row_data) const;
 	void drawAsciiDumpToBuffer(QTextStream &stream, uint64_t offset, uint64_t size, const QByteArray &row_data) const;
-	void drawComments(QPainter &painter, uint64_t offset, unsigned int row, uint64_t size) const;
+	void drawComments(QPainter &painter, uint64_t offset, int row, uint64_t size) const;
 	void drawCommentsToBuffer(QTextStream &stream, uint64_t offset, uint64_t size) const;
-	void drawHexDump(QPainter &painter, uint64_t offset, unsigned int row, uint64_t size, int *word_count, const QByteArray &row_data) const;
+	void drawHexDump(QPainter &painter, uint64_t offset, int row, uint64_t size, int *word_count, const QByteArray &row_data) const;
 	void drawHexDumpToBuffer(QTextStream &stream, uint64_t offset, uint64_t size, const QByteArray &row_data) const;
 	void ensureVisible(int64_t index);
 	void updateScrollbars();
 
 private:
-	CommentServerInterface::pointer comment_server_;
-	std::unique_ptr<QBuffer>        internal_buffer_;
-	QColor                          address_color_           = Qt::red; // color of the address in display
-	QColor                          even_word_               = Qt::blue;
-	QColor                          non_printable_text_      = Qt::red;
-	QIODevice                       *data_                   = nullptr;
-	address_t                       address_offset_          = 0;       // this is the offset that our base address is relative to
-	address_t                       origin_                  = 0;
-	address_t                       cold_zone_end_           = 0;       // base_address - cold_zone_end_ will be displayed as gray
-	bool                            user_can_set_word_width_ = true;
-	bool                            user_can_set_row_width_  = true;
-	bool                            show_address_            = true;    // should we show the address display?
-	bool                            show_ascii_              = true;    // should we show the ascii display?
-	bool                            show_comments_           = true;
-	bool                            show_hex_                = true;    // should we show the hex display?
-	bool                            show_address_separator_  = true;    // should we show ':' character in address to separate high/low portions
-	bool                            show_vertline1_          = true;
-	bool                            show_vertline2_          = true;
-	bool                            show_vertline3_          = true;
-	char                            unprintable_char_        = '.';
-	int                             font_height_             = 0;       // height of a character in this font
-	int                             row_width_               = 16;      // amount of 'words' per row
-	int                             word_width_              = 1;       // size of a 'word' in bytes
-	int64_t                         selection_end_           = -1;      // index of last selected word (or -1)
-	int64_t                         selection_start_         = -1;      // index of first selected word (or -1)
-	qreal                           font_width_              = 0;       // width of a character in this font
+	std::unique_ptr<CommentServerBase> commentServer_;
+	std::unique_ptr<QBuffer>           internal_buffer_;
+	QColor                             address_color_           = Qt::red; // color of the address in display
+	QColor                             even_word_               = Qt::blue;
+	QColor                             non_printable_text_      = Qt::red;
+	QIODevice*                         data_                   = nullptr;
+	address_t                          address_offset_          = 0;       // this is the offset that our base address is relative to
+	address_t                          origin_                  = 0;
+	address_t                          cold_zone_end_           = 0;       // base_address - cold_zone_end_ will be displayed as gray
+	bool                               user_can_set_word_width_ = true;
+	bool                               user_can_set_row_width_  = true;
+	bool                               show_address_            = true;    // should we show the address display?
+	bool                               show_ascii_              = true;    // should we show the ascii display?
+	bool                               show_comments_           = true;
+	bool                               show_hex_                = true;    // should we show the hex display?
+	bool                               show_address_separator_  = true;    // should we show ':' character in address to separate high/low portions
+	bool                               show_vertline1_          = true;
+	bool                               show_vertline2_          = true;
+	bool                               show_vertline3_          = true;
+	char                               unprintable_char_        = '.';
+	int                                font_height_             = 0;       // height of a character in this font
+	int                                font_width_              = 0;       // width of a character in this font
+	int                                row_width_               = 16;      // amount of 'words' per row
+	int                                word_width_              = 1;       // size of a 'word' in bytes
+	int64_t                            selection_end_           = -1;      // index of last selected word (or -1)
+	int64_t                            selection_start_         = -1;      // index of first selected word (or -1)
+
 	
 	enum {
 		Highlighting_None,
