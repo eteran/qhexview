@@ -989,8 +989,8 @@ void QHexView::drawHexDump(QPainter &painter, uint64_t offset, int row, uint64_t
 
 			const QString byteBuffer = formatBytes(row_data, i * word_width_);
 
-			const qreal drawLeft  = hex_dump_left + (i * (charsPerWord() + 1) * font_width_);
-			const qreal drawWidth = charsPerWord() * font_width_;
+			const int drawLeft  = hex_dump_left + (i * (charsPerWord() + 1) * font_width_);
+			const int drawWidth = charsPerWord() * font_width_;
 
 			if(isSelected(index)) {
 			
@@ -1060,7 +1060,7 @@ void QHexView::drawAsciiDump(QPainter &painter, uint64_t offset, int row, uint64
 
 		if(index < size) {
 			const char ch        = row_data[i];
-			const qreal drawLeft  = ascii_dump_left + i * font_width_;
+			const int drawLeft   = ascii_dump_left + i * font_width_;
 			const bool printable = is_printable(ch);
 
 			// drawing a selected character
@@ -1122,7 +1122,7 @@ void QHexView::paintEvent(QPaintEvent * event) {
 
 	// current actual offset (in bytes), we do this manually because we have the else
 	// case unlike the helper function
-	int64_t offset = static_cast<int64_t>(verticalScrollBar()->value()) * chars_per_row;
+	int64_t offset = verticalScrollBar()->value() * chars_per_row;
 
 	if(origin_ != 0) {
 		if(offset > 0) {
