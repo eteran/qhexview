@@ -123,11 +123,12 @@ public:
 	QByteArray allBytes() const;
 	QMenu *createStandardContextMenu();
 
+	bool hasSelectedText() const;
+
 public Q_SLOTS:
 	void clear();
 	void selectAll();
 	void deselect();
-	bool hasSelectedText() const;
 	void mnuSetFont();
 	void mnuCopy();
 
