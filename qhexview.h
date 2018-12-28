@@ -49,7 +49,7 @@ private:
 	template <class T>
 	class CommentServerWrapper : public CommentServerBase {
 	public:
-		CommentServerWrapper(const T *commentServer) : commentServer_(commentServer) {
+		explicit CommentServerWrapper(const T *commentServer) : commentServer_(commentServer) {
 		}
 
 		QString comment(address_t address, int size) const override {
@@ -60,7 +60,7 @@ private:
 	};
 
 public:
-	QHexView(QWidget *parent = nullptr);
+	explicit QHexView(QWidget *parent = nullptr);
 	~QHexView() override = default;
 
 public:
