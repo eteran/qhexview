@@ -737,8 +737,12 @@ void QHexView::mousePressEvent(QMouseEvent *event) {
 		}
 
 		if(offset < dataSize()) {
-			selection_start_ = byte_offset;
-			selection_end_ = selection_start_ + word_width_;
+			if (hasSelectedText() && (event->modifiers() & Qt::ShiftModifier)) {
+				selection_end_ = byte_offset;
+			} else {
+				selection_start_ = byte_offset;
+				selection_end_ = selection_start_ + word_width_;
+			}
 		} else {
 			selection_start_ = selection_end_ = -1;
 		}
