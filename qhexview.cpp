@@ -637,8 +637,14 @@ void QHexView::updateToolTip() {
 
 	auto sb = selectedBytes();
 	auto tooltip = QString("<p style='white-space:pre'>"); //prevent word wrap
+#if 0
 	tooltip += QString("<b>Addr:</b> 0x%1 - 0x%2").arg(selectedBytesAddress(), 0, 16)
-												.arg(selectedBytesAddress() + sb.size(), 0, 16);
+												  .arg(selectedBytesAddress() + sb.size(), 0, 16);
+#else
+	const address_t start = selectedBytesAddress();
+	const address_t end = selectedBytesAddress() + sb.size();
+	tooltip += "<b>Addr: </b>" + formatAddress(start) + " - " + formatAddress(end);
+#endif
 	tooltip += "<br><b>Hex:</b> 0x" + sb.toHex();
 	tooltip += "<br><b>UInt32:</b> " + QString::number(qFromLittleEndian<quint32>(sb.data()));
 	tooltip += "<br><b>Int32:</b> " + QString::number(qFromLittleEndian<qint32>(sb.data()));
