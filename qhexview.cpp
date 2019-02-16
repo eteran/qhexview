@@ -29,6 +29,7 @@ The license chosen is at the discretion of the user of this software.
 #include <QTextStream>
 #include <QtGlobal>
 #include <QtEndian>
+#include <QStringBuilder>
 
 #include <cctype>
 #include <climits>
@@ -692,14 +693,17 @@ void QHexView::updateToolTip() {
 	}
 
 	auto sb = selectedBytes();
-	auto tooltip = QString("<p style='white-space:pre'>"); //prevent word wrap
 	const address_t start = selectedBytesAddress();
 	const address_t end = selectedBytesAddress() + sb.size();
-	tooltip += "<b>Addr: </b>" + formatAddress(start) + " - " + formatAddress(end);
-	tooltip += "<br><b>Hex:</b> 0x" + sb.toHex();
-	tooltip += "<br><b>UInt32:</b> " + QString::number(qFromLittleEndian<quint32>(sb.data()));
-	tooltip += "<br><b>Int32:</b> " + QString::number(qFromLittleEndian<qint32>(sb.data()));
-	tooltip += "</p>";
+
+	QString tooltip = //noWordWrap % addr;
+		QString("<p style='white-space:pre'>")	//prevent word wrap
+		% QString("<b>Addr: </b>") % formatAddress(start) % " - " % formatAddress(end)
+		% QString("<br><b>Hex:</b> 0x") % sb.toHex()
+		% QString("<br><b>UInt32:</b> ") % QString::number(qFromLittleEndian<quint32>(sb.data()))
+		% QString("<br><b>Int32:</b> ") % QString::number(qFromLittleEndian<qint32>(sb.data()))
+		% QString("</p>");
+
 	setToolTip(tooltip);
 }
 
