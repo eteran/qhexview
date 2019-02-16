@@ -653,9 +653,11 @@ void QHexView::updateToolTip() {
 	auto sb = selectedBytes();
 	auto tooltip = QString("<p style='white-space:pre'>"); //prevent word wrap
 #if 0
+	// Plain formatting with 0x prefix
 	tooltip += QString("<b>Addr:</b> 0x%1 - 0x%2").arg(selectedBytesAddress(), 0, 16)
 												  .arg(selectedBytesAddress() + sb.size(), 0, 16);
 #else
+	// Segment:Offset style formatting is easier to read
 	const address_t start = selectedBytesAddress();
 	const address_t end = selectedBytesAddress() + sb.size();
 	tooltip += "<b>Addr: </b>" + formatAddress(start) + " - " + formatAddress(end);
