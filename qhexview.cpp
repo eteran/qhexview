@@ -226,7 +226,7 @@ QMenu *QHexView::createStandardContextMenu() {
 
 	menu->addSeparator();
 	menu->addAction(tr("&Copy Selection To Clipboard"), this, SLOT(mnuCopy()));
-
+	menu->addAction(tr("&Copy Address To Clipboard"), this, SLOT(mnuAddrCopy()));
 	return menu;
 }
 
@@ -311,6 +311,21 @@ void QHexView::mnuCopy() {
 			offset += chars_per_row;
 		}
 
+		QApplication::clipboard()->setText(s);
+
+		// TODO(eteran): do we want to trample the X11-selection too?
+		QApplication::clipboard()->setText(s, QClipboard::Selection);
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: mnuAddrCopy
+// Desc: Copy the starting address of the selected bytes
+//------------------------------------------------------------------------------
+void QHexView::mnuAddrCopy() {
+	if(hasSelectedText()) {
+
+		auto s = QString("0x%1").arg(selectedBytesAddress(), 0, 16);
 		QApplication::clipboard()->setText(s);
 
 		// TODO(eteran): do we want to trample the X11-selection too?

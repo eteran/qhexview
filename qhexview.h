@@ -131,6 +131,7 @@ public Q_SLOTS:
 	void deselect();
 	void mnuSetFont();
 	void mnuCopy();
+	void mnuAddrCopy();
 
 private:
 	QString formatAddress(address_t address);
