@@ -395,6 +395,47 @@ void QHexView::keyPressEvent(QKeyEvent *event) {
 		if(offset > 0) {
 			scrollTo(offset - 1);
 		}
+	} else if(event->modifiers() & Qt::ShiftModifier && hasSelectedText()) {
+		// Attempting to match the highlighting behavior of common text
+		// editors where highlighting to the left or up will keep the
+		// first character (byte in our case) highlighted while also
+		// extending back or up.
+		auto dir = event->key();
+		switch(dir) {
+		case Qt::Key_Right:
+			if (selection_start_ == selection_end_) {
+				selection_start_ -= word_width_;
+			}
+			if(selection_end_ / word_width_ < dataSize()) {
+				selection_end_ += word_width_;
+			}
+			break;
+		case Qt::Key_Left:
+			if ((selection_end_ - word_width_) == selection_start_) {
+				selection_start_ += word_width_;
+				selection_end_ -= word_width_;
+			}
+			if (selection_end_ / word_width_ > 0) {
+				selection_end_ -= word_width_;
+			}
+			break;
+		case Qt::Key_Down:
+			selection_end_ += row_width_;
+			selection_end_ = std::min(selection_end_, dataSize() * word_width_);
+			break;
+		case Qt::Key_Up:
+			if ((selection_end_ - word_width_) == selection_start_) {
+				selection_start_ += word_width_;
+			}
+			selection_end_ -= row_width_;
+			if (selection_end_ == 0) {
+				 selection_end_ = 0;
+			}
+			break;
+		default:
+			break;
+		}
+		viewport()->update();
 	} else {
 		QAbstractScrollArea::keyPressEvent(event);
 	}
