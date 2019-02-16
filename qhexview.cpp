@@ -699,7 +699,6 @@ void QHexView::updateToolTip() {
 	QString tooltip = //noWordWrap % addr;
 		QString("<p style='white-space:pre'>")	//prevent word wrap
 		% QString("<b>Addr: </b>") % formatAddress(start) % " - " % formatAddress(end)
-		% QString("<br><b>Hex:</b> 0x") % sb.toHex()
 		% QString("<br><b>UInt32:</b> ") % QString::number(qFromLittleEndian<quint32>(sb.data()))
 		% QString("<br><b>Int32:</b> ") % QString::number(qFromLittleEndian<qint32>(sb.data()))
 		% QString("</p>");
