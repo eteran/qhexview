@@ -28,6 +28,7 @@ The license chosen is at the discretion of the user of this software.
 #include <QSignalMapper>
 #include <QTextStream>
 #include <QtGlobal>
+#include <QtEndian>
 
 #include <cctype>
 #include <climits>
@@ -627,6 +628,25 @@ int64_t QHexView::pixelToWord(int x, int y) const {
 }
 
 //------------------------------------------------------------------------------
+// Name: setToolTip
+//------------------------------------------------------------------------------
+void QHexView::updateToolTip() {
+	if(selectedBytesSize() <= 0) {
+		return;
+	}
+
+	auto sb = selectedBytes();
+	auto tooltip = QString("<p style='white-space:pre'>"); //prevent word wrap
+	tooltip += QString("<b>Addr:</b> 0x%1 - 0x%2").arg(selectedBytesAddress(), 0, 16)
+												.arg(selectedBytesAddress() + sb.size(), 0, 16);
+	tooltip += "<br><b>Hex:</b> 0x" + sb.toHex();
+	tooltip += "<br><b>UInt32:</b> " + QString::number(qFromLittleEndian<quint32>(sb.data()));
+	tooltip += "<br><b>Int32:</b> " + QString::number(qFromLittleEndian<qint32>(sb.data()));
+	tooltip += "</p>";
+	setToolTip(tooltip);
+}
+
+//------------------------------------------------------------------------------
 // Name: mouseDoubleClickEvent
 //------------------------------------------------------------------------------
 void QHexView::mouseDoubleClickEvent(QMouseEvent *event) {
@@ -666,6 +686,8 @@ void QHexView::mouseDoubleClickEvent(QMouseEvent *event) {
 			viewport()->update();
 		}
 	}
+
+	updateToolTip();
 }
 
 //------------------------------------------------------------------------------
@@ -702,6 +724,8 @@ void QHexView::mousePressEvent(QMouseEvent *event) {
 	if (event->button() == Qt::RightButton) {
 
 	}
+
+	updateToolTip();
 }
 
 //------------------------------------------------------------------------------
@@ -743,6 +767,7 @@ void QHexView::mouseMoveEvent(QMouseEvent *event) {
 
 		}
 		viewport()->update();
+		updateToolTip();
 	}
 }
 
