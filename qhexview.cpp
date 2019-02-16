@@ -643,7 +643,7 @@ int64_t QHexView::pixelToWord(int x, int y) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: setToolTip
+// Name: updateToolTip
 //------------------------------------------------------------------------------
 void QHexView::updateToolTip() {
 	if(selectedBytesSize() <= 0) {
