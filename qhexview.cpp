@@ -701,6 +701,8 @@ void QHexView::updateToolTip() {
 		% QString("<b>Range: </b>") % formatAddress(start) % " - " % formatAddress(end)
 		% QString("<br><b>UInt32:</b> ") % QString::number(qFromLittleEndian<quint32>(sb.data()))
 		% QString("<br><b>Int32:</b> ") % QString::number(qFromLittleEndian<qint32>(sb.data()))
+		% QString("<br><b>UInt64:</b> ") % QString::number(qFromLittleEndian<quint64>(sb.data()))
+		% QString("<br><b>Int64</b> ") % QString::number(qFromLittleEndian<qint64>(sb.data()))
 		% QString("</p>");
 
 	setToolTip(tooltip);
