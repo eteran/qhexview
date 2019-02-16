@@ -696,7 +696,7 @@ void QHexView::updateToolTip() {
 	const address_t start = selectedBytesAddress();
 	const address_t end = selectedBytesAddress() + sb.size();
 
-	QString tooltip = //noWordWrap % addr;
+	QString tooltip =
 		QString("<p style='white-space:pre'>")	//prevent word wrap
 		% QString("<b>Range: </b>") % formatAddress(start) % " - " % formatAddress(end)
 		% QString("<br><b>UInt32:</b> ") % QString::number(qFromLittleEndian<quint32>(sb.data()))
