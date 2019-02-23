@@ -28,6 +28,8 @@ The license chosen is at the discretion of the user of this software.
 #include <QSignalMapper>
 #include <QTextStream>
 #include <QtGlobal>
+#include <QtEndian>
+#include <QStringBuilder>
 
 #include <cctype>
 #include <climits>
@@ -225,7 +227,7 @@ QMenu *QHexView::createStandardContextMenu() {
 
 	menu->addSeparator();
 	menu->addAction(tr("&Copy Selection To Clipboard"), this, SLOT(mnuCopy()));
-
+	menu->addAction(tr("&Copy Address To Clipboard"), this, SLOT(mnuAddrCopy()));
 	return menu;
 }
 
@@ -318,6 +320,21 @@ void QHexView::mnuCopy() {
 }
 
 //------------------------------------------------------------------------------
+// Name: mnuAddrCopy
+// Desc: Copy the starting address of the selected bytes
+//------------------------------------------------------------------------------
+void QHexView::mnuAddrCopy() {
+	if(hasSelectedText()) {
+
+		auto s = QString("0x%1").arg(selectedBytesAddress(), 0, 16);
+		QApplication::clipboard()->setText(s);
+
+		// TODO(eteran): do we want to trample the X11-selection too?
+		QApplication::clipboard()->setText(s, QClipboard::Selection);
+	}
+}
+
+//------------------------------------------------------------------------------
 // Name: mnuSetFont
 // Desc: slot used to set the font of the widget based on dialog selector
 //------------------------------------------------------------------------------
@@ -379,6 +396,47 @@ void QHexView::keyPressEvent(QKeyEvent *event) {
 		if(offset > 0) {
 			scrollTo(offset - 1);
 		}
+	} else if(event->modifiers() & Qt::ShiftModifier && hasSelectedText()) {
+		// Attempting to match the highlighting behavior of common text
+		// editors where highlighting to the left or up will keep the
+		// first character (byte in our case) highlighted while also
+		// extending back or up.
+		auto dir = event->key();
+		switch(dir) {
+		case Qt::Key_Right:
+			if (selection_start_ == selection_end_) {
+				selection_start_ -= word_width_;
+			}
+			if(selection_end_ / word_width_ < dataSize()) {
+				selection_end_ += word_width_;
+			}
+			break;
+		case Qt::Key_Left:
+			if ((selection_end_ - word_width_) == selection_start_) {
+				selection_start_ += word_width_;
+				selection_end_ -= word_width_;
+			}
+			if (selection_end_ / word_width_ > 0) {
+				selection_end_ -= word_width_;
+			}
+			break;
+		case Qt::Key_Down:
+			selection_end_ += row_width_;
+			selection_end_ = std::min(selection_end_, dataSize() * word_width_);
+			break;
+		case Qt::Key_Up:
+			if ((selection_end_ - word_width_) == selection_start_) {
+				selection_start_ += word_width_;
+			}
+			selection_end_ -= row_width_;
+			if (selection_end_ == 0) {
+				 selection_end_ = 0;
+			}
+			break;
+		default:
+			break;
+		}
+		viewport()->update();
 	} else {
 		QAbstractScrollArea::keyPressEvent(event);
 	}
@@ -627,6 +685,30 @@ int64_t QHexView::pixelToWord(int x, int y) const {
 }
 
 //------------------------------------------------------------------------------
+// Name: updateToolTip
+//------------------------------------------------------------------------------
+void QHexView::updateToolTip() {
+	if(selectedBytesSize() <= 0) {
+		return;
+	}
+
+	auto sb = selectedBytes();
+	const address_t start = selectedBytesAddress();
+	const address_t end = selectedBytesAddress() + sb.size();
+
+	QString tooltip =
+		QString("<p style='white-space:pre'>")	//prevent word wrap
+		% QString("<b>Range: </b>") % formatAddress(start) % " - " % formatAddress(end)
+		% QString("<br><b>UInt32:</b> ") % QString::number(qFromLittleEndian<quint32>(sb.data()))
+		% QString("<br><b>Int32:</b> ") % QString::number(qFromLittleEndian<qint32>(sb.data()))
+		% QString("<br><b>UInt64:</b> ") % QString::number(qFromLittleEndian<quint64>(sb.data()))
+		% QString("<br><b>Int64</b> ") % QString::number(qFromLittleEndian<qint64>(sb.data()))
+		% QString("</p>");
+
+	setToolTip(tooltip);
+}
+
+//------------------------------------------------------------------------------
 // Name: mouseDoubleClickEvent
 //------------------------------------------------------------------------------
 void QHexView::mouseDoubleClickEvent(QMouseEvent *event) {
@@ -666,6 +748,8 @@ void QHexView::mouseDoubleClickEvent(QMouseEvent *event) {
 			viewport()->update();
 		}
 	}
+
+	updateToolTip();
 }
 
 //------------------------------------------------------------------------------
@@ -692,8 +776,12 @@ void QHexView::mousePressEvent(QMouseEvent *event) {
 		}
 
 		if(offset < dataSize()) {
-			selection_start_ = byte_offset;
-			selection_end_ = selection_start_ + word_width_;
+			if (hasSelectedText() && (event->modifiers() & Qt::ShiftModifier)) {
+				selection_end_ = byte_offset;
+			} else {
+				selection_start_ = byte_offset;
+				selection_end_ = selection_start_ + word_width_;
+			}
 		} else {
 			selection_start_ = selection_end_ = -1;
 		}
@@ -702,6 +790,8 @@ void QHexView::mousePressEvent(QMouseEvent *event) {
 	if (event->button() == Qt::RightButton) {
 
 	}
+
+	updateToolTip();
 }
 
 //------------------------------------------------------------------------------
@@ -743,6 +833,7 @@ void QHexView::mouseMoveEvent(QMouseEvent *event) {
 
 		}
 		viewport()->update();
+		updateToolTip();
 	}
 }
 

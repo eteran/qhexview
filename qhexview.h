@@ -131,6 +131,7 @@ public Q_SLOTS:
 	void deselect();
 	void mnuSetFont();
 	void mnuCopy();
+	void mnuAddrCopy();
 
 private:
 	QString formatAddress(address_t address);
@@ -157,6 +158,7 @@ private:
 	void drawHexDumpToBuffer(QTextStream &stream, uint64_t offset, uint64_t size, const QByteArray &row_data) const;
 	void ensureVisible(int64_t index);
 	void updateScrollbars();
+	void updateToolTip();
 
 private:
 	std::unique_ptr<CommentServerBase> commentServer_;
