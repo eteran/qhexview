@@ -699,10 +699,10 @@ void QHexView::updateToolTip() {
 	QString tooltip =
 		QString("<p style='white-space:pre'>")	//prevent word wrap
 		% QString("<b>Range: </b>") % formatAddress(start) % " - " % formatAddress(end)
-		% QString("<br><b>UInt32:</b> ") % QString::number(qFromLittleEndian<quint32>(sb.data()))
-		% QString("<br><b>Int32:</b> ") % QString::number(qFromLittleEndian<qint32>(sb.data()))
-		% QString("<br><b>UInt64:</b> ") % QString::number(qFromLittleEndian<quint64>(sb.data()))
-		% QString("<br><b>Int64</b> ") % QString::number(qFromLittleEndian<qint64>(sb.data()))
+		% QString("<br><b>UInt32:</b> ") % QString::number(qFromLittleEndian<quint32>(reinterpret_cast<uchar*>(sb.data())))
+		% QString("<br><b>Int32:</b> ") % QString::number(qFromLittleEndian<qint32>(reinterpret_cast<uchar*>(sb.data())))
+		% QString("<br><b>UInt64:</b> ") % QString::number(qFromLittleEndian<quint64>(reinterpret_cast<uchar*>(sb.data())))
+		% QString("<br><b>Int64</b> ") % QString::number(qFromLittleEndian<qint64>(reinterpret_cast<uchar*>(sb.data())))
 		% QString("</p>");
 
 	setToolTip(tooltip);
