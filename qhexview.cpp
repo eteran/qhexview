@@ -850,7 +850,7 @@ void QHexView::mouseReleaseEvent(QMouseEvent *event) {
 // Name: ensureVisible
 //------------------------------------------------------------------------------
 void QHexView::ensureVisible(int64_t index) {
-	Q_UNUSED(index);
+	Q_UNUSED(index)
 #if 0
 	if(index < normalizedOffset()) {
 		while(index < normalizedOffset()) {
@@ -925,7 +925,7 @@ bool QHexView::isSelected(int64_t index) const {
 //------------------------------------------------------------------------------
 void QHexView::drawComments(QPainter &painter, uint64_t offset, int row, uint64_t size) const {
 
-	Q_UNUSED(size);
+	Q_UNUSED(size)
 
 	painter.setPen(palette().color(QPalette::Text));
 
@@ -969,7 +969,7 @@ void QHexView::drawAsciiDumpToBuffer(QTextStream &stream, uint64_t offset, uint6
 // Name: drawCommentsToBuffer
 //------------------------------------------------------------------------------
 void QHexView::drawCommentsToBuffer(QTextStream &stream, uint64_t offset, uint64_t size) const {
-	Q_UNUSED(size);
+	Q_UNUSED(size)
 	const address_t address = address_offset_ + offset;
 	const QString comment   = commentServer_->comment(address, word_width_);
 	stream << comment;
@@ -1032,7 +1032,7 @@ QString QHexView::formatBytes(const QByteArray &row_data, int index) const {
 //------------------------------------------------------------------------------
 void QHexView::drawHexDumpToBuffer(QTextStream &stream, uint64_t offset, uint64_t size, const QByteArray &row_data) const {
 
-	Q_UNUSED(size);
+	Q_UNUSED(size)
 
 	// i is the word we are currently rendering
 	for(int i = 0; i < row_width_; ++i) {
@@ -1200,7 +1200,7 @@ void QHexView::drawAsciiDump(QPainter &painter, uint64_t offset, int row, uint64
 //------------------------------------------------------------------------------
 void QHexView::paintEvent(QPaintEvent * event) {
 
-	Q_UNUSED(event);
+	Q_UNUSED(event)
 	QPainter painter(viewport());
 	painter.translate(-horizontalScrollBar()->value() * font_width_, 0);
 
