@@ -1394,7 +1394,7 @@ QByteArray QHexView::selectedBytes() const {
  * @brief QHexView::selectedBytesAddress
  * @return
  */
-QHexView::address_t QHexView::selectedBytesAddress() const {
+auto QHexView::selectedBytesAddress() const -> address_t {
 	const address_t select_base = std::min(selectionStart_, selectionEnd_);
 	return select_base + addressOffset_;
 }
@@ -1419,7 +1419,7 @@ uint64_t QHexView::selectedBytesSize() const {
  * @brief QHexView::addressOffset
  * @return
  */
-QHexView::address_t QHexView::addressOffset() const {
+auto QHexView::addressOffset() const -> address_t {
 	return addressOffset_;
 }
 
@@ -1475,7 +1475,7 @@ int QHexView::rowWidth() const {
  * @brief QHexView::firstVisibleAddress
  * @return
  */
-QHexView::address_t QHexView::firstVisibleAddress() const {
+auto QHexView::firstVisibleAddress() const -> address_t {
 	// current actual offset (in bytes)
 	int64_t offset = normalizedOffset();
 	return offset + addressOffset();
