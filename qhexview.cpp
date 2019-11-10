@@ -1556,14 +1556,26 @@ QColor QHexView::addressColor() const {
 	return addressColor_;
 }
 
+/**
+ * @brief QHexView::coldZoneColor
+ * @return
+ */
 QColor QHexView::coldZoneColor() const {
 	return coldZoneColor_;
 }
 
+/**
+ * @brief QHexView::alternateWordColor
+ * @return
+ */
 QColor QHexView::alternateWordColor() const {
 	return alternateWordColor_;
 }
 
+/**
+ * @brief QHexView::nonPrintableTextColor
+ * @return
+ */
 QColor QHexView::nonPrintableTextColor() const {
 	return nonPrintableTextColor_;
 }
