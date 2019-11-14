@@ -88,7 +88,6 @@ public Q_SLOTS:
 	void setAlternateWordColor(const QColor &color);
 	void setColdZoneColor(const QColor &color);
 	void setFont(const QFont &font);
-	void setLineColor(const QColor &color);
 	void setNonPrintableTextColor(const QColor &color);
 	void setRowWidth(int);
 	void setShowAddress(bool);
@@ -105,7 +104,6 @@ public:
 	QByteArray allBytes() const;
 	QByteArray selectedBytes() const;
 	QColor addressColor() const;
-	QColor lineColor() const;
 	QIODevice *data() const { return data_; }
 	QMenu *createStandardContextMenu();
 	address_t addressOffset() const;
@@ -170,7 +168,6 @@ private:
 	QColor addressColor_          = Qt::red; // color of the address in display
 	QColor alternateWordColor_    = Qt::blue;
 	QColor coldZoneColor_         = Qt::gray;
-	QColor lineColor_             = Qt::black;
 	QColor nonPrintableTextColor_ = Qt::red;
 	QIODevice *data_              = nullptr;
 	address_t addressOffset_      = 0; // this is the offset that our base address is relative to
