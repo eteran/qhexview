@@ -465,7 +465,7 @@ void QHexView::keyPressEvent(QKeyEvent *event) {
 				selectionStart_ += wordWidth_;
 			}
 			selectionEnd_ -= rowWidth_;
-			if (selectionEnd_ == 0) {
+			if (selectionEnd_ <= 0) {
 				selectionEnd_ = 0;
 			}
 			break;
@@ -815,7 +815,7 @@ void QHexView::mousePressEvent(QMouseEvent *event) {
 
 		if (x < line2()) {
 			highlighting_ = Highlighting::Data;
-		} else if (x >= line2()) {
+		} else {
 			highlighting_ = Highlighting::Ascii;
 		}
 
