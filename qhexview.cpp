@@ -202,9 +202,11 @@ QMenu *QHexView::createStandardContextMenu() {
 		setShowAsciiDump(value);
 	});
 
-	add_toggle_action_to_menu(menu, tr("Show &Comments"), showComments_, [this](bool value) {
-		setShowComments(value);
-	});
+	if(commentServer_) {
+		add_toggle_action_to_menu(menu, tr("Show &Comments"), showComments_, [this](bool value) {
+			setShowComments(value);
+		});
+	}
 
 	if (userCanSetWordWidth_ || userCanSetRowWidth_) {
 		menu->addSeparator();
@@ -225,7 +227,7 @@ QMenu *QHexView::createStandardContextMenu() {
 		});
 
 		add_toggle_action_to_menu(wordMenu, tr("8 Bytes"), wordWidth_ == 8, [this]() {
-			setWordWidth(5);
+			setWordWidth(8);
 		});
 
 		menu->addMenu(wordMenu);
