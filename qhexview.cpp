@@ -467,7 +467,7 @@ void QHexView::keyPressEvent(QKeyEvent *event) {
 				selectionStart_ += wordWidth_;
 			}
 			selectionEnd_ -= rowWidth_;
-			if (selectionEnd_ == 0) {
+			if (selectionEnd_ <= 0) {
 				selectionEnd_ = 0;
 			}
 			break;
@@ -817,7 +817,7 @@ void QHexView::mousePressEvent(QMouseEvent *event) {
 
 		if (x < line2()) {
 			highlighting_ = Highlighting::Data;
-		} else if (x >= line2()) {
+		} else {
 			highlighting_ = Highlighting::Ascii;
 		}
 
@@ -1333,7 +1333,7 @@ void QHexView::paintEvent(QPaintEvent *event) {
 		row += fontHeight_;
 	}
 
-	painter.setPen(palette().color(QPalette::Shadow));
+	painter.setPen(palette().color(hasFocus() ? QPalette::Active : QPalette::Inactive, QPalette::WindowText));
 
 	if (showAddress_ && showLine1_) {
 		const int vertline1_x = line1();
@@ -1543,14 +1543,6 @@ void QHexView::setUserConfigRowWidth(bool value) {
 }
 
 /**
- * @brief QHexView::lineColor
- * @return
- */
-QColor QHexView::lineColor() const {
-	return lineColor_;
-}
-
-/**
  * @brief QHexView::addressColor
  * @return
  */
@@ -1588,14 +1580,6 @@ QColor QHexView::nonPrintableTextColor() const {
  */
 void QHexView::setColdZoneColor(const QColor &color) {
 	coldZoneColor_ = color;
-}
-
-/**
- * @brief QHexView::setLineColor
- * @param color
- */
-void QHexView::setLineColor(const QColor &color) {
-	lineColor_ = color;
 }
 
 /**
