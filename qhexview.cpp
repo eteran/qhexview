@@ -753,9 +753,14 @@ void QHexView::updateToolTip() {
 	const address_t start = selectedBytesAddress();
 	const address_t end   = selectedBytesAddress() + sb.size();
 
-	QString tooltip =
-		QString("<p style='white-space:pre'>") //prevent word wrap
-		% QString("<b>Range: </b>") % formatAddress(start) % " - " % formatAddress(end) % QString("<br><b>UInt32:</b> ") % QString::number(qFromLittleEndian<quint32>(reinterpret_cast<uchar *>(sb.data()))) % QString("<br><b>Int32:</b> ") % QString::number(qFromLittleEndian<qint32>(reinterpret_cast<uchar *>(sb.data()))) % QString("<br><b>UInt64:</b> ") % QString::number(qFromLittleEndian<quint64>(reinterpret_cast<uchar *>(sb.data()))) % QString("<br><b>Int64</b> ") % QString::number(qFromLittleEndian<qint64>(reinterpret_cast<uchar *>(sb.data()))) % QString("</p>");
+	uchar* data = reinterpret_cast<uchar *>(sb.data());
+	QString tooltip = QString("<p style='white-space:pre'>") //prevent word wrap
+		% QString("<b>Range: </b>") % formatAddress(start) % " - " % formatAddress(end);
+	if (sb.size() == sizeof(quint32))
+		tooltip += QString("<br><b>UInt32:</b> ") % QString::number(qFromLittleEndian<quint32>(data)) % QString("<br><b>Int32:</b> ") % QString::number(qFromLittleEndian<qint32>(data));
+	if (sb.size() == sizeof(quint64))
+		tooltip += QString("<br><b>UInt64:</b> ") % QString::number(qFromLittleEndian<quint64>(data)) % QString("<br><b>Int64</b> ") % QString::number(qFromLittleEndian<qint64>(data));
+	tooltip += "</p>";
 
 	setToolTip(tooltip);
 }
