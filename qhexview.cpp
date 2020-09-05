@@ -168,7 +168,12 @@ void QHexView::setFont(const QFont &f) {
 
 	// recalculate all of our metrics/offsets
 	const QFontMetrics fm(font);
-	fontWidth_  = fm.width('X');
+#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
+	fontWidth_ = fm.horizontalAdvance('X');
+#else
+	fontWidth_   = fm.width('X');
+#endif
+
 	fontHeight_ = fm.height();
 
 	updateScrollbars();
@@ -202,7 +207,7 @@ QMenu *QHexView::createStandardContextMenu() {
 		setShowAsciiDump(value);
 	});
 
-	if(commentServer_) {
+	if (commentServer_) {
 		add_toggle_action_to_menu(menu, tr("Show &Comments"), showComments_, [this](bool value) {
 			setShowComments(value);
 		});
@@ -753,9 +758,9 @@ void QHexView::updateToolTip() {
 	const address_t start = selectedBytesAddress();
 	const address_t end   = selectedBytesAddress() + sb.size();
 
-	uchar* data = reinterpret_cast<uchar *>(sb.data());
+	uchar *data     = reinterpret_cast<uchar *>(sb.data());
 	QString tooltip = QString("<p style='white-space:pre'>") //prevent word wrap
-		% QString("<b>Range: </b>") % formatAddress(start) % " - " % formatAddress(end);
+					  % QString("<b>Range: </b>") % formatAddress(start) % " - " % formatAddress(end);
 	if (sb.size() == sizeof(quint32))
 		tooltip += QString("<br><b>UInt32:</b> ") % QString::number(qFromLittleEndian<quint32>(data)) % QString("<br><b>Int32:</b> ") % QString::number(qFromLittleEndian<qint32>(data));
 	if (sb.size() == sizeof(quint64))
@@ -1047,46 +1052,53 @@ void QHexView::drawCommentsToBuffer(QTextStream &stream, int64_t offset, int64_t
  * @return
  */
 QString QHexView::formatBytes(const QByteArray &row_data, int index) const {
-	union {
-		uint64_t q;
-		uint32_t d;
-		uint16_t w;
-		uint8_t b;
-	} value = {0};
 
 	char byte_buffer[32];
 
+	static constexpr char hexbytes[] = "000102030405060708090a0b0c0d0e0f"
+									   "101112131415161718191a1b1c1d1e1f"
+									   "202122232425262728292a2b2c2d2e2f"
+									   "303132333435363738393a3b3c3d3e3f"
+									   "404142434445464748494a4b4c4d4e4f"
+									   "505152535455565758595a5b5c5d5e5f"
+									   "606162636465666768696a6b6c6d6e6f"
+									   "707172737475767778797a7b7c7d7e7f"
+									   "808182838485868788898a8b8c8d8e8f"
+									   "909192939495969798999a9b9c9d9e9f"
+									   "a0a1a2a3a4a5a6a7a8a9aaabacadaeaf"
+									   "b0b1b2b3b4b5b6b7b8b9babbbcbdbebf"
+									   "c0c1c2c3c4c5c6c7c8c9cacbcccdcecf"
+									   "d0d1d2d3d4d5d6d7d8d9dadbdcdddedf"
+									   "e0e1e2e3e4e5e6e7e8e9eaebecedeeef"
+									   "f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff";
+
 	switch (wordWidth_) {
 	case 1:
-		value.b |= (row_data[index + 0] & 0xff);
-		qsnprintf(byte_buffer, sizeof(byte_buffer), "%02x", value.b);
+		memcpy(&byte_buffer[0], &hexbytes[(row_data[index + 0] & 0xff) * 2], 2);
 		break;
 	case 2:
-		value.w |= (row_data[index + 0] & 0xff);
-		value.w |= (row_data[index + 1] & 0xff) << 8;
-		qsnprintf(byte_buffer, sizeof(byte_buffer), "%04x", value.w);
+		memcpy(&byte_buffer[0], &hexbytes[(row_data[index + 1] & 0xff) * 2], 2);
+		memcpy(&byte_buffer[2], &hexbytes[(row_data[index + 0] & 0xff) * 2], 2);
 		break;
 	case 4:
-		value.d |= (row_data[index + 0] & 0xff);
-		value.d |= (row_data[index + 1] & 0xff) << 8;
-		value.d |= (row_data[index + 2] & 0xff) << 16;
-		value.d |= (row_data[index + 3] & 0xff) << 24;
-		qsnprintf(byte_buffer, sizeof(byte_buffer), "%08x", value.d);
+		memcpy(&byte_buffer[0], &hexbytes[(row_data[index + 3] & 0xff) * 2], 2);
+		memcpy(&byte_buffer[2], &hexbytes[(row_data[index + 2] & 0xff) * 2], 2);
+		memcpy(&byte_buffer[4], &hexbytes[(row_data[index + 1] & 0xff) * 2], 2);
+		memcpy(&byte_buffer[6], &hexbytes[(row_data[index + 0] & 0xff) * 2], 2);
 		break;
 	case 8:
-		// we need the cast to ensure that it won't assume 32-bit
-		// and drop bits shifted more that 31
-		value.q |= static_cast<uint64_t>(row_data[index + 0] & 0xff);
-		value.q |= static_cast<uint64_t>(row_data[index + 1] & 0xff) << 8;
-		value.q |= static_cast<uint64_t>(row_data[index + 2] & 0xff) << 16;
-		value.q |= static_cast<uint64_t>(row_data[index + 3] & 0xff) << 24;
-		value.q |= static_cast<uint64_t>(row_data[index + 4] & 0xff) << 32;
-		value.q |= static_cast<uint64_t>(row_data[index + 5] & 0xff) << 40;
-		value.q |= static_cast<uint64_t>(row_data[index + 6] & 0xff) << 48;
-		value.q |= static_cast<uint64_t>(row_data[index + 7] & 0xff) << 56;
-		qsnprintf(byte_buffer, sizeof(byte_buffer), "%016llx", value.q);
+		memcpy(&byte_buffer[0], &hexbytes[(row_data[index + 7] & 0xff) * 2], 2);
+		memcpy(&byte_buffer[2], &hexbytes[(row_data[index + 6] & 0xff) * 2], 2);
+		memcpy(&byte_buffer[4], &hexbytes[(row_data[index + 5] & 0xff) * 2], 2);
+		memcpy(&byte_buffer[6], &hexbytes[(row_data[index + 4] & 0xff) * 2], 2);
+		memcpy(&byte_buffer[8], &hexbytes[(row_data[index + 3] & 0xff) * 2], 2);
+		memcpy(&byte_buffer[10], &hexbytes[(row_data[index + 2] & 0xff) * 2], 2);
+		memcpy(&byte_buffer[12], &hexbytes[(row_data[index + 1] & 0xff) * 2], 2);
+		memcpy(&byte_buffer[14], &hexbytes[(row_data[index + 0] & 0xff) * 2], 2);
 		break;
 	}
+
+	byte_buffer[wordWidth_ * 2] = '\0';
 
 	return byte_buffer;
 }
