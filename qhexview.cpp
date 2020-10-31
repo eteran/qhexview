@@ -128,16 +128,11 @@ QString QHexView::formatAddress(address_t address) {
 		const uint32_t hi = (address >> 32) & 0xffffffff;
 		const uint32_t lo = (address & 0xffffffff);
 
-		// if we encounter a large enough address, just give up on hiding leading zeros
-		if (address >= 0x8000'0000'0000) {
-			hideLeadingAddressZeros_ = false;
-		}
-
-		if (hideLeadingAddressZeros_ && address < 0x8000'0000'0000) {
+		if (hideLeadingAddressZeros_) {
 			if (showAddressSeparator_) {
-				qsnprintf(buffer, sizeof(buffer), "%04x:%08x", hi, lo);
+				qsnprintf(buffer, sizeof(buffer), "%04x:%08x", (hi & 0xffff), lo);
 			} else {
-				qsnprintf(buffer, sizeof(buffer), "%04x%08x", hi, lo);
+				qsnprintf(buffer, sizeof(buffer), "%04x%08x", (hi & 0xffff), lo);
 			}
 		} else {
 			if (showAddressSeparator_) {
