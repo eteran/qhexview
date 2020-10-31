@@ -128,10 +128,23 @@ QString QHexView::formatAddress(address_t address) {
 		const uint32_t hi = (address >> 32) & 0xffffffff;
 		const uint32_t lo = (address & 0xffffffff);
 
-		if (showAddressSeparator_) {
-			qsnprintf(buffer, sizeof(buffer), "%08x:%08x", hi, lo);
+		// if we encounter a large enough address, just give up on hiding leading zeros
+		if (address >= 0x8000'0000'0000) {
+			hideLeadingAddressZeros_ = false;
+		}
+
+		if (hideLeadingAddressZeros_ && address < 0x8000'0000'0000) {
+			if (showAddressSeparator_) {
+				qsnprintf(buffer, sizeof(buffer), "%04x:%08x", hi, lo);
+			} else {
+				qsnprintf(buffer, sizeof(buffer), "%04x%08x", hi, lo);
+			}
 		} else {
-			qsnprintf(buffer, sizeof(buffer), "%08x%08x", hi, lo);
+			if (showAddressSeparator_) {
+				qsnprintf(buffer, sizeof(buffer), "%08x:%08x", hi, lo);
+			} else {
+				qsnprintf(buffer, sizeof(buffer), "%08x%08x", hi, lo);
+			}
 		}
 	}
 		return QString::fromLocal8Bit(buffer);
@@ -153,6 +166,23 @@ void QHexView::repaint() {
  */
 int64_t QHexView::dataSize() const {
 	return data_ ? data_->size() : 0;
+}
+
+/**
+ *
+ * @brief QHexView::setHideLeadingAddressZeros
+ * @param value
+ */
+void QHexView::setHideLeadingAddressZeros(bool value) {
+	hideLeadingAddressZeros_ = value;
+}
+
+/**
+ *
+ * @brief QHexView::hideLeadingAddressZeros
+ */
+bool QHexView::hideLeadingAddressZeros() const {
+	return hideLeadingAddressZeros_;
 }
 
 /**
@@ -486,7 +516,7 @@ void QHexView::keyPressEvent(QKeyEvent *event) {
 }
 
 /**
- * @brief QHexView::vertline3
+ * @brief QHexView::line3
  * @return the x coordinate of the 3rd line
  */
 int QHexView::line3() const {
@@ -499,7 +529,7 @@ int QHexView::line3() const {
 }
 
 /**
- * @brief QHexView::vertline2
+ * @brief QHexView::line2
  * @return the x coordinate of the 2nd line
  */
 int QHexView::line2() const {
@@ -512,7 +542,7 @@ int QHexView::line2() const {
 }
 
 /**
- * @brief QHexView::vertline1
+ * @brief QHexView::line1
  * @return the x coordinate of the 1st line
  */
 int QHexView::line1() const {
@@ -561,6 +591,10 @@ int QHexView::charsPerWord() const {
  * @return the lenth in characters the address will take up
  */
 int QHexView::addressLength() const {
+	if (hideLeadingAddressZeros_ && addressSize_ == Address64) {
+		const int addressLength = ((addressSize_ * CHAR_BIT) / 4) - 4;
+		return addressLength + (showAddressSeparator_ ? 1 : 0);
+	}
 	const int addressLength = (addressSize_ * CHAR_BIT) / 4;
 	return addressLength + (showAddressSeparator_ ? 1 : 0);
 }
@@ -1100,7 +1134,7 @@ QString QHexView::formatBytes(const QByteArray &row_data, int index) const {
 
 	byte_buffer[wordWidth_ * 2] = '\0';
 
-	return byte_buffer;
+	return QString::fromLatin1(byte_buffer);
 }
 
 /**

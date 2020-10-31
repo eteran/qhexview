@@ -10,7 +10,7 @@ This file can be used under one of two licenses.
 1. The GNU Public License, version 2.0, in COPYING-gpl2
 2. A BSD-Style License, in COPYING-bsd2.
 
-The license chosen is at the discretion of the user of this software. 
+The license chosen is at the discretion of the user of this software.
 */
 
 #ifndef QHEXVIEW_H_
@@ -98,6 +98,7 @@ public Q_SLOTS:
 	void setUserConfigRowWidth(bool);
 	void setUserConfigWordWidth(bool);
 	void setWordWidth(int);
+	void setHideLeadingAddressZeros(bool);
 
 public:
 	AddressSize addressSize() const;
@@ -116,6 +117,7 @@ public:
 	bool showHexDump() const;
 	bool userConfigRowWidth() const;
 	bool userConfigWordWidth() const;
+	bool hideLeadingAddressZeros() const;
 	int rowWidth() const;
 	int wordWidth() const;
 	uint64_t selectedBytesSize() const;
@@ -183,6 +185,7 @@ private:
 	bool showLine3_               = true;
 	bool userCanSetRowWidth_      = true;
 	bool userCanSetWordWidth_     = true;
+	bool hideLeadingAddressZeros_ = false;
 	char unprintableChar_         = '.';
 	int fontHeight_               = 0;  // height of a character in this font
 	int fontWidth_                = 0;  // width of a character in this font
