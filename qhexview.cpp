@@ -189,8 +189,9 @@ bool QHexView::hideLeadingAddressZeros() const {
 void QHexView::setFont(const QFont &f) {
 
 	QFont font(f);
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
 	font.setStyleStrategy(QFont::ForceIntegerMetrics);
-
+#endif
 	// recalculate all of our metrics/offsets
 	const QFontMetrics fm(font);
 #if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
