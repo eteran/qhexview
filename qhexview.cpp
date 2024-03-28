@@ -1,9 +1,9 @@
 /*
 Copyright (C) 2006 - 2013 Evan Teran
-                          eteran@alum.rit.edu
+						  eteran@alum.rit.edu
 
 Copyright (C) 2010        Hugues Bruant
-                          hugues.bruant@gmail.com
+						  hugues.bruant@gmail.com
 
 This file can be used under one of two licenses.
 
@@ -49,9 +49,9 @@ constexpr bool is_printable(uint8_t ch) {
 	// if it's standard ascii use isprint/isspace, otherwise go with our observations
 	if (ch < 0x80) {
 		return std::isprint(ch) || std::isspace(ch);
-	} else {
-		return (ch & 0xff) >= 0xa0;
 	}
+
+	return (ch & 0xff) >= 0xa0;
 }
 
 /**
@@ -108,7 +108,7 @@ void QHexView::setShowAddressSeparator(bool value) {
  * @param address
  * @return
  */
-QString QHexView::formatAddress(address_t address) {
+QString QHexView::formatAddress(address_t address) const {
 
 	static char buffer[32];
 
@@ -197,7 +197,7 @@ void QHexView::setFont(const QFont &f) {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
 	fontWidth_ = fm.horizontalAdvance('X');
 #else
-	fontWidth_   = fm.width('X');
+	fontWidth_ = fm.width('X');
 #endif
 
 	fontHeight_ = fm.height();
@@ -519,9 +519,9 @@ int QHexView::line3() const {
 	if (showAscii_) {
 		const int elements = bytesPerRow();
 		return asciiDumpLeft() + (elements * fontWidth_) + (fontWidth_ / 2);
-	} else {
-		return line2();
 	}
+
+	return line2();
 }
 
 /**
@@ -532,9 +532,9 @@ int QHexView::line2() const {
 	if (showHex_) {
 		const int elements = rowWidth_ * (charsPerWord() + 1) - 1;
 		return hexDumpLeft() + (elements * fontWidth_) + (fontWidth_ / 2);
-	} else {
-		return line1();
 	}
+
+	return line1();
 }
 
 /**
@@ -545,9 +545,9 @@ int QHexView::line1() const {
 	if (showAddress_) {
 		const int elements = addressLength();
 		return (elements * fontWidth_) + (fontWidth_ / 2);
-	} else {
-		return 0;
 	}
+
+	return 0;
 }
 
 /**
@@ -584,19 +584,20 @@ int QHexView::charsPerWord() const {
 
 /**
  * @brief QHexView::addressLen
- * @return the lenth in characters the address will take up
+ * @return the length in characters the address will take up
  */
 int QHexView::addressLength() const {
 	if (hideLeadingAddressZeros_ && addressSize_ == Address64) {
 		const int addressLength = ((addressSize_ * CHAR_BIT) / 4) - 4;
 		return addressLength + (showAddressSeparator_ ? 1 : 0);
 	}
+
 	const int addressLength = (addressSize_ * CHAR_BIT) / 4;
 	return addressLength + (showAddressSeparator_ ? 1 : 0);
 }
 
 /**
- * ecalculates scrollbar maximum value base on lines total and lines viewable
+ * calculates scrollbar maximum value base on lines total and lines viewable
  *
  * @brief QHexView::updateScrollbars
  */
@@ -731,20 +732,20 @@ int64_t QHexView::pixelToWord(int x, int y) const {
 #endif
 		// the right edge of a box is kinda quirky, so we pretend there is one
 		// extra character there
-		x = qBound(line1(), x, static_cast<int>(line2() + fontWidth_));
+		x = std::clamp(x, line1(), line2() + fontWidth_);
 
 		// the selection is in the data view portion
 		x -= line1();
 
 		// scale x/y down to character from pixels
-		x = x / fontWidth_ + (fmod(x, fontWidth_) >= fontWidth_ / 2 ? 1 : 0);
+		x = (x / fontWidth_) + (fmod(x, fontWidth_) >= (fontWidth_ / 2.0) ? 1 : 0);
 		y /= fontHeight_;
 
 		// make x relative to rendering mode of the bytes
 		x /= (charsPerWord() + 1);
 		break;
 	case Highlighting::Ascii:
-		x = qBound(asciiDumpLeft(), x, line3());
+		x = std::clamp(x, asciiDumpLeft(), line3());
 
 		// the selection is in the ascii view portion
 		x -= asciiDumpLeft();
@@ -788,13 +789,19 @@ void QHexView::updateToolTip() {
 	const address_t start = selectedBytesAddress();
 	const address_t end   = selectedBytesAddress() + sb.size();
 
-	uchar *data     = reinterpret_cast<uchar *>(sb.data());
-	QString tooltip = QString("<p style='white-space:pre'>") //prevent word wrap
+	auto data       = reinterpret_cast<uchar *>(sb.data());
+	QString tooltip = QString("<p style='white-space:pre'>") // prevent word wrap
 					  % QString("<b>Range: </b>") % formatAddress(start) % " - " % formatAddress(end);
-	if (sb.size() == sizeof(quint32))
+
+	switch (sb.size()) {
+	case sizeof(quint32):
 		tooltip += QString("<br><b>UInt32:</b> ") % QString::number(qFromLittleEndian<quint32>(data)) % QString("<br><b>Int32:</b> ") % QString::number(qFromLittleEndian<qint32>(data));
-	if (sb.size() == sizeof(quint64))
+		break;
+	case sizeof(quint64):
 		tooltip += QString("<br><b>UInt64:</b> ") % QString::number(qFromLittleEndian<quint64>(data)) % QString("<br><b>Int64</b> ") % QString::number(qFromLittleEndian<qint64>(data));
+		break;
+	}
+
 	tooltip += "</p>";
 
 	setToolTip(tooltip);
@@ -1085,7 +1092,7 @@ QString QHexView::formatBytes(const QByteArray &row_data, int index) const {
 
 	char byte_buffer[32];
 
-	static constexpr char hexbytes[] = "000102030405060708090a0b0c0d0e0f"
+	static constexpr char hex_bytes[] = "000102030405060708090a0b0c0d0e0f"
 									   "101112131415161718191a1b1c1d1e1f"
 									   "202122232425262728292a2b2c2d2e2f"
 									   "303132333435363738393a3b3c3d3e3f"
@@ -1104,31 +1111,31 @@ QString QHexView::formatBytes(const QByteArray &row_data, int index) const {
 
 	switch (wordWidth_) {
 	case 1:
-		memcpy(&byte_buffer[0], &hexbytes[(row_data[index + 0] & 0xff) * 2], 2);
+		memcpy(&byte_buffer[0], &hex_bytes[(row_data[index + 0] & 0xff) * 2L], 2);
 		break;
 	case 2:
-		memcpy(&byte_buffer[0], &hexbytes[(row_data[index + 1] & 0xff) * 2], 2);
-		memcpy(&byte_buffer[2], &hexbytes[(row_data[index + 0] & 0xff) * 2], 2);
+		memcpy(&byte_buffer[0], &hex_bytes[(row_data[index + 1] & 0xff) * 2L], 2);
+		memcpy(&byte_buffer[2], &hex_bytes[(row_data[index + 0] & 0xff) * 2L], 2);
 		break;
 	case 4:
-		memcpy(&byte_buffer[0], &hexbytes[(row_data[index + 3] & 0xff) * 2], 2);
-		memcpy(&byte_buffer[2], &hexbytes[(row_data[index + 2] & 0xff) * 2], 2);
-		memcpy(&byte_buffer[4], &hexbytes[(row_data[index + 1] & 0xff) * 2], 2);
-		memcpy(&byte_buffer[6], &hexbytes[(row_data[index + 0] & 0xff) * 2], 2);
+		memcpy(&byte_buffer[0], &hex_bytes[(row_data[index + 3] & 0xff) * 2L], 2);
+		memcpy(&byte_buffer[2], &hex_bytes[(row_data[index + 2] & 0xff) * 2L], 2);
+		memcpy(&byte_buffer[4], &hex_bytes[(row_data[index + 1] & 0xff) * 2L], 2);
+		memcpy(&byte_buffer[6], &hex_bytes[(row_data[index + 0] & 0xff) * 2L], 2);
 		break;
 	case 8:
-		memcpy(&byte_buffer[0], &hexbytes[(row_data[index + 7] & 0xff) * 2], 2);
-		memcpy(&byte_buffer[2], &hexbytes[(row_data[index + 6] & 0xff) * 2], 2);
-		memcpy(&byte_buffer[4], &hexbytes[(row_data[index + 5] & 0xff) * 2], 2);
-		memcpy(&byte_buffer[6], &hexbytes[(row_data[index + 4] & 0xff) * 2], 2);
-		memcpy(&byte_buffer[8], &hexbytes[(row_data[index + 3] & 0xff) * 2], 2);
-		memcpy(&byte_buffer[10], &hexbytes[(row_data[index + 2] & 0xff) * 2], 2);
-		memcpy(&byte_buffer[12], &hexbytes[(row_data[index + 1] & 0xff) * 2], 2);
-		memcpy(&byte_buffer[14], &hexbytes[(row_data[index + 0] & 0xff) * 2], 2);
+		memcpy(&byte_buffer[0], &hex_bytes[(row_data[index + 7] & 0xff) * 2L], 2);
+		memcpy(&byte_buffer[2], &hex_bytes[(row_data[index + 6] & 0xff) * 2L], 2);
+		memcpy(&byte_buffer[4], &hex_bytes[(row_data[index + 5] & 0xff) * 2L], 2);
+		memcpy(&byte_buffer[6], &hex_bytes[(row_data[index + 4] & 0xff) * 2L], 2);
+		memcpy(&byte_buffer[8], &hex_bytes[(row_data[index + 3] & 0xff) * 2L], 2);
+		memcpy(&byte_buffer[10], &hex_bytes[(row_data[index + 2] & 0xff) * 2L], 2);
+		memcpy(&byte_buffer[12], &hex_bytes[(row_data[index + 1] & 0xff) * 2L], 2);
+		memcpy(&byte_buffer[14], &hex_bytes[(row_data[index + 0] & 0xff) * 2L], 2);
 		break;
 	}
 
-	byte_buffer[wordWidth_ * 2] = '\0';
+	byte_buffer[wordWidth_ * 2L] = '\0';
 
 	return QString::fromLatin1(byte_buffer);
 }
@@ -1148,7 +1155,7 @@ void QHexView::drawHexDumpToBuffer(QTextStream &stream, int64_t offset, int64_t 
 	for (int i = 0; i < rowWidth_; ++i) {
 
 		// index of first byte of current 'word'
-		const int64_t index = offset + (i * wordWidth_);
+		const int64_t index = offset + (static_cast<int64_t>(i) * wordWidth_);
 
 		// equal <=, not < because we want to test the END of the word we
 		// about to render, not the start, it's allowed to end at the very last
@@ -1184,7 +1191,7 @@ void QHexView::drawHexDump(QPainter &painter, int64_t offset, int row, int64_t s
 	const int hex_dump_left = hexDumpLeft();
 
 	// i is the word we are currently rendering
-	for (int i = 0; i < rowWidth_; ++i) {
+	for (int64_t i = 0; i < rowWidth_; ++i) {
 
 		// index of first byte of current 'word'
 		const int64_t index = offset + (i * wordWidth_);
@@ -1329,7 +1336,7 @@ void QHexView::paintEvent(QPaintEvent *event) {
 
 	// current actual offset (in bytes), we do this manually because we have the else
 	// case unlike the helper function
-	int64_t offset = verticalScrollBar()->value() * chars_per_row;
+	int64_t offset = static_cast<int64_t>(verticalScrollBar()->value()) * chars_per_row;
 
 	if (origin_ != 0) {
 		if (offset > 0) {

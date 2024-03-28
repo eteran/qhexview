@@ -1,9 +1,9 @@
 /*
 Copyright (C) 2006 - 2013 Evan Teran
-                          eteran@alum.rit.edu
+						  eteran@alum.rit.edu
 
 Copyright (C) 2010        Hugues Bruant
-                          hugues.bruant@gmail.com
+						  hugues.bruant@gmail.com
 
 This file can be used under one of two licenses.
 
@@ -101,34 +101,34 @@ public Q_SLOTS:
 	void setHideLeadingAddressZeros(bool);
 
 public:
-	AddressSize addressSize() const;
-	QByteArray allBytes() const;
-	QByteArray selectedBytes() const;
-	QColor addressColor() const;
-	QIODevice *data() const { return data_; }
-	QMenu *createStandardContextMenu();
 	address_t addressOffset() const;
 	address_t firstVisibleAddress() const;
 	address_t selectedBytesAddress() const;
+	AddressSize addressSize() const;
 	bool hasSelectedText() const;
+	bool hideLeadingAddressZeros() const;
 	bool showAddress() const;
 	bool showAsciiDump() const;
 	bool showComments() const;
 	bool showHexDump() const;
 	bool userConfigRowWidth() const;
 	bool userConfigWordWidth() const;
-	bool hideLeadingAddressZeros() const;
 	int rowWidth() const;
 	int wordWidth() const;
+	QByteArray allBytes() const;
+	QByteArray selectedBytes() const;
+	QColor addressColor() const;
+	QColor alternateWordColor() const;
+	QColor coldZoneColor() const;
+	QColor nonPrintableTextColor() const;
+	QIODevice *data() const { return data_; }
+	QMenu *createStandardContextMenu();
 	uint64_t selectedBytesSize() const;
 	void scrollTo(address_t offset);
 	void setAddressOffset(address_t offset);
 	void setAddressSize(AddressSize address_size);
 	void setColdZoneEnd(address_t offset);
 	void setData(QIODevice *d);
-	QColor alternateWordColor() const;
-	QColor coldZoneColor() const;
-	QColor nonPrintableTextColor() const;
 
 public Q_SLOTS:
 	void clear();
@@ -139,8 +139,6 @@ public Q_SLOTS:
 	void selectAll();
 
 private:
-	QString formatAddress(address_t address);
-	QString formatBytes(const QByteArray &row_data, int index) const;
 	bool isInViewableArea(int64_t index) const;
 	bool isSelected(int64_t index) const;
 	int addressLength() const;
@@ -155,6 +153,8 @@ private:
 	int64_t dataSize() const;
 	int64_t normalizedOffset() const;
 	int64_t pixelToWord(int x, int y) const;
+	QString formatAddress(address_t address) const;
+	QString formatBytes(const QByteArray &row_data, int index) const;
 	void drawAsciiDump(QPainter &painter, int64_t offset, int row, int64_t size, const QByteArray &row_data) const;
 	void drawAsciiDumpToBuffer(QTextStream &stream, int64_t offset, int64_t size, const QByteArray &row_data) const;
 	void drawComments(QPainter &painter, int64_t offset, int row, int64_t size) const;
