@@ -13,6 +13,11 @@ add_library(QHexView
     QHexView
 )
 
+target_include_directories (QHexView
+PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
 target_link_libraries(QHexView
 PUBLIC
     Qt5::Widgets
